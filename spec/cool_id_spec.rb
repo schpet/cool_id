@@ -6,15 +6,12 @@ require "active_record"
 
 class User < ActiveRecord::Base
   include CoolId::Model
-  self.cool_id_prefix = "usr"
+  register_cool_id prefix: "usr"
 end
 
 class CustomUser < ActiveRecord::Base
   include CoolId::Model
-  self.cool_id_prefix = "cus"
-  self.cool_id_separator = "-"
-  self.cool_id_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  self.cool_id_length = 8
+  register_cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8
 end
 
 RSpec.describe CoolId do
@@ -24,23 +21,35 @@ RSpec.describe CoolId do
 
   describe ".generate_id" do
     it "generates an ID with default parameters" do
-      id = CoolId.generate_id
+      config = CoolId::Config.new
+      id = CoolId.generate_id(config)
       expect(id).to match(/^[0-9a-z]{12}$/)
     end
 
-    it "generates an ID with custom prefix, separator, and length" do
-      id = CoolId.generate_id(prefix: "test", separator: "-", length: 10)
-      expect(id).to match(/^test-[0-9a-z]{10}$/)
+    it "generates an ID with custom prefix and length" do
+      config = CoolId::Config.new(prefix: "test", length: 10)
+      id = CoolId.generate_id(config)
+      expect(id).to match(/^test_[0-9a-z]{10}$/)
     end
 
     it "generates an ID without prefix when prefix is empty" do
-      id = CoolId.generate_id(prefix: "", length: 15)
+      config = CoolId::Config.new(prefix: "", length: 15)
+      id = CoolId.generate_id(config)
       expect(id).to match(/^[0-9a-z]{15}$/)
     end
 
     it "generates an ID with custom alphabet" do
-      id = CoolId.generate_id(alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 10)
+      config = CoolId::Config.new(alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 10)
+      id = CoolId.generate_id(config)
       expect(id).to match(/^[A-Z]{10}$/)
+    end
+
+    it "uses the globally configured separator" do
+      CoolId.configure { |config| config.separator = "-" }
+      config = CoolId::Config.new(prefix: "test", length: 10)
+      id = CoolId.generate_id(config)
+      expect(id).to match(/^test-[0-9a-z]{10}$/)
+      CoolId.separator = "_" # Reset to default
     end
   end
 
@@ -83,8 +92,65 @@ RSpec.describe CoolId do
     end
 
     it "generates a cool_id with custom settings" do
+      original_separator = CoolId.separator
+      CoolId.separator = "-"
       custom_user = CustomUser.create(name: "Alice")
       expect(custom_user.id).to match(/^cus-[A-Z]{8}$/)
+      CoolId.separator = original_separator
+    end
+
+    it "raises an error when trying to set an empty prefix" do
+      expect {
+        Class.new(ActiveRecord::Base) do
+          include CoolId::Model
+          register_cool_id prefix: ""
+        end
+      }.to raise_error(ArgumentError, "Prefix cannot be empty")
+    end
+
+    it "raises an error when the alphabet includes the separator" do
+      original_separator = CoolId.separator
+      CoolId.separator = "-"
+      expect {
+        CoolId::Config.new(alphabet: "ABC-DEF")
+      }.to raise_error(ArgumentError, "Alphabet cannot include the separator '-'")
+      CoolId.separator = original_separator
+    end
+
+    it "can find a record using CoolId.find" do
+      user = User.create(name: "John Doe")
+      found_user = CoolId.find(user.id)
+      expect(found_user).to eq(user)
+    end
+
+    it "can find a custom record using CoolId.find" do
+      custom_user = CustomUser.create(name: "Alice")
+      found_custom_user = CoolId.find(custom_user.id)
+      expect(found_custom_user).to eq(custom_user)
+    end
+
+    it "returns nil when trying to find a non-existent record" do
+      expect(CoolId.find("usr_nonexistent")).to be_nil
+    end
+
+    it "raises ActiveRecord::RecordNotFound when trying to find! a non-existent record" do
+      expect { CoolId.find!("usr_nonexistent") }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it "returns nil when trying to find a record with an unknown prefix" do
+      expect(CoolId.find("unknown_prefix_123")).to be_nil
+    end
+
+    it "returns nil when trying to find! a record with an unknown prefix" do
+      expect(CoolId.find!("unknown_prefix_123")).to be_nil
+    end
+
+    it "works with different separators" do
+      user = User.create(name: "John Doe")
+      custom_user = CustomUser.create(name: "Jane Doe")
+
+      expect(CoolId.find(user.id)).to eq(user)
+      expect(CoolId.find(custom_user.id)).to eq(custom_user)
     end
   end
 end
