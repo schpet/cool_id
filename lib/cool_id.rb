@@ -110,8 +110,10 @@ module CoolId
         end
       end
 
+      public
+
       def generate_cool_id
-        CoolId.generate_id(@cool_id_config || Config.new)
+        CoolId.generate_id(@cool_id_config || Config.new(prefix: nil))
       end
     end
 
