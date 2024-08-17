@@ -133,16 +133,8 @@ RSpec.describe CoolId do
       expect(CoolId.locate("usr_nonexistent")).to be_nil
     end
 
-    it "raises ActiveRecord::RecordNotFound when trying to locate! a non-existent record" do
-      expect { CoolId.locate!("usr_nonexistent") }.to raise_error(ActiveRecord::RecordNotFound)
-    end
-
     it "returns nil when trying to locate a record with an unknown prefix" do
       expect(CoolId.locate("unknown_prefix_123")).to be_nil
-    end
-
-    it "returns nil when trying to locate! a record with an unknown prefix" do
-      expect(CoolId.locate!("unknown_prefix_123")).to be_nil
     end
 
     it "works with different separators" do

@@ -111,8 +111,4 @@ module CoolId
   def self.locate(id)
     registry.find_record(id)
   end
-
-  def self.locate!(id)
-    registry.find_record!(id)
-  end
 end
