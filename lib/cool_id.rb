@@ -54,16 +54,8 @@ module CoolId
 
     def initialize(prefix:, length: 12, alphabet: nil)
       @length = length
-      self.prefix = prefix
-      self.alphabet = alphabet
-    end
-
-    def prefix=(value)
-      @prefix = validate_prefix(value)
-    end
-
-    def alphabet=(value)
-      @alphabet = validate_alphabet(value)
+      @prefix = validate_prefix(prefix)
+      @alphabet = validate_alphabet(alphabet)
     end
 
     private
