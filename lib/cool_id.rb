@@ -25,7 +25,7 @@ module CoolId
       length = config.length || @length
       id = Nanoid.generate(size: length, alphabet: alphabet)
 
-      "#{config.prefix}#{@separator}#{id}"
+      "#{config.prefix}#{separator}#{id}"
     end
   end
 
