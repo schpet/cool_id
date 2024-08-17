@@ -27,9 +27,9 @@ RSpec.describe CoolId do
     end
 
     it "generates an ID with an empty prefix" do
-      config = CoolId::Config.new(prefix: "")
+      config = CoolId::Config.new(prefix: "X")
       id = CoolId.generate_id(config)
-      expect(id).to match(/^[0-9a-z]{12}$/)
+      expect(id).to match(/^X_[0-9a-z]{12}$/)
     end
 
     it "generates an ID with custom prefix and length" do
@@ -39,9 +39,9 @@ RSpec.describe CoolId do
     end
 
     it "generates an ID without prefix when prefix is empty" do
-      config = CoolId::Config.new(prefix: "", length: 15)
+      config = CoolId::Config.new(prefix: "X", length: 15)
       id = CoolId.generate_id(config)
-      expect(id).to match(/^[0-9a-z]{15}$/)
+      expect(id).to match(/^X_[0-9a-z]{15}$/)
     end
 
     it "generates an ID without prefix when prefix is nil" do
@@ -51,9 +51,9 @@ RSpec.describe CoolId do
     end
 
     it "generates an ID with custom alphabet" do
-      config = CoolId::Config.new(prefix: "", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 10)
+      config = CoolId::Config.new(prefix: "X", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 10)
       id = CoolId.generate_id(config)
-      expect(id).to match(/^[A-Z]{10}$/)
+      expect(id).to match(/^X_[A-Z]{10}$/)
     end
 
     it "uses the globally configured separator" do
@@ -135,14 +135,14 @@ RSpec.describe CoolId do
           include CoolId::Model
           register_cool_id prefix: ""
         end
-      }.to raise_error(ArgumentError, "Prefix cannot be empty or consist only of whitespace")
+      }.to raise_error(ArgumentError, "Prefix cannot consist only of whitespace")
 
       expect {
         Class.new(ActiveRecord::Base) do
           include CoolId::Model
           register_cool_id prefix: "   "
         end
-      }.to raise_error(ArgumentError, "Prefix cannot be empty or consist only of whitespace")
+      }.to raise_error(ArgumentError, "Prefix cannot consist only of whitespace")
 
       expect {
         Class.new(ActiveRecord::Base) do

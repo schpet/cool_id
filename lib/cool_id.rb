@@ -67,7 +67,7 @@ module CoolId
     private
 
     def validate_prefix(value)
-      return nil if value.nil? || value.empty?
+      return nil if value.nil?
       raise ArgumentError, "Prefix cannot consist only of whitespace" if value.strip.empty?
       value
     end
@@ -90,27 +90,9 @@ module CoolId
       end
 
       def register_cool_id(options = {})
-        validate_cool_id_options(options)
         @cool_id_config = Config.new(**options)
         CoolId.registry.register(options[:prefix], self)
       end
-
-      private
-
-      def validate_cool_id_options(options)
-        if options[:prefix]
-          raise ArgumentError, "Prefix cannot be empty or consist only of whitespace" if options[:prefix].strip.empty?
-        end
-        if options[:length]
-          raise ArgumentError, "Length must be a positive integer" unless options[:length].is_a?(Integer) && options[:length] > 0
-        end
-        if options[:alphabet]
-          raise ArgumentError, "Alphabet must be a non-empty string" unless options[:alphabet].is_a?(String) && !options[:alphabet].empty?
-          raise ArgumentError, "Alphabet cannot include the separator '#{CoolId.separator}'" if options[:alphabet].include?(CoolId.separator)
-        end
-      end
-
-      public
 
       def generate_cool_id
         CoolId.generate_id(@cool_id_config || Config.new(prefix: nil))
