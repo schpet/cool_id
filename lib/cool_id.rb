@@ -3,7 +3,6 @@
 require_relative "cool_id/version"
 require "nanoid"
 require "active_support/concern"
-require "active_record"
 
 module CoolId
   class Error < StandardError; end
@@ -25,7 +24,6 @@ module CoolId
       alphabet = config.alphabet || @alphabet
       length = config.length || @length
       id = Nanoid.generate(size: length, alphabet: alphabet)
-      # [config.prefix, id].compact.reject(&:empty?).join(@separator)
 
       "#{config.prefix}#{@separator}#{id}"
     end
