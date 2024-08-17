@@ -7,6 +7,10 @@ require "active_support/concern"
 module CoolId
   class Error < StandardError; end
 
+  DEFAULT_SEPARATOR = "_"
+  DEFAULT_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz"
+  DEFAULT_LENGTH = 12
+
   Id = Struct.new(:key, :prefix, :id, :model_class)
 
   class << self
@@ -30,9 +34,9 @@ module CoolId
   end
 
   # defaults based on https://planetscale.com/blog/why-we-chose-nanoids-for-planetscales-api
-  self.separator = "_"
-  self.alphabet = "0123456789abcdefghijklmnopqrstuvwxyz"
-  self.length = 12
+  self.separator = DEFAULT_SEPARATOR
+  self.alphabet = DEFAULT_ALPHABET
+  self.length = DEFAULT_LENGTH
 
   class Registry
     def initialize
