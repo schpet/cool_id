@@ -45,12 +45,6 @@ module CoolId
       model_class = find_model(prefix)
       model_class&.find_by(id: id)
     end
-
-    def find_record!(id)
-      prefix, _ = id.split(CoolId.separator, 2)
-      model_class = find_model(prefix)
-      model_class&.find(id)
-    end
   end
 
   class Config
