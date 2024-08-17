@@ -29,6 +29,7 @@ module CoolId
     end
   end
 
+  # defaults based on https://planetscale.com/blog/why-we-chose-nanoids-for-planetscales-api
   self.separator = "_"
   self.alphabet = "0123456789abcdefghijklmnopqrstuvwxyz"
   self.length = 12
