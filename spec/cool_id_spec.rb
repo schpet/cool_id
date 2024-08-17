@@ -118,7 +118,7 @@ RSpec.describe CoolId do
       original_separator = CoolId.separator
       CoolId.separator = "-"
       expect {
-        CoolId::Config.new(alphabet: "ABC-DEF")
+        CoolId::Config.new(prefix: "test", alphabet: "ABC-DEF")
       }.to raise_error(ArgumentError, "Alphabet cannot include the separator '-'")
       CoolId.separator = original_separator
     end
