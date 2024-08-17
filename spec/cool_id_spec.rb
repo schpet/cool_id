@@ -117,40 +117,40 @@ RSpec.describe CoolId do
       CoolId.separator = original_separator
     end
 
-    it "can find a record using CoolId.find" do
+    it "can locate a record using CoolId.locate" do
       user = User.create(name: "John Doe")
-      found_user = CoolId.find(user.id)
-      expect(found_user).to eq(user)
+      located_user = CoolId.locate(user.id)
+      expect(located_user).to eq(user)
     end
 
-    it "can find a custom record using CoolId.find" do
+    it "can locate a custom record using CoolId.locate" do
       custom_user = CustomUser.create(name: "Alice")
-      found_custom_user = CoolId.find(custom_user.id)
-      expect(found_custom_user).to eq(custom_user)
+      located_custom_user = CoolId.locate(custom_user.id)
+      expect(located_custom_user).to eq(custom_user)
     end
 
-    it "returns nil when trying to find a non-existent record" do
-      expect(CoolId.find("usr_nonexistent")).to be_nil
+    it "returns nil when trying to locate a non-existent record" do
+      expect(CoolId.locate("usr_nonexistent")).to be_nil
     end
 
-    it "raises ActiveRecord::RecordNotFound when trying to find! a non-existent record" do
-      expect { CoolId.find!("usr_nonexistent") }.to raise_error(ActiveRecord::RecordNotFound)
+    it "raises ActiveRecord::RecordNotFound when trying to locate! a non-existent record" do
+      expect { CoolId.locate!("usr_nonexistent") }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
-    it "returns nil when trying to find a record with an unknown prefix" do
-      expect(CoolId.find("unknown_prefix_123")).to be_nil
+    it "returns nil when trying to locate a record with an unknown prefix" do
+      expect(CoolId.locate("unknown_prefix_123")).to be_nil
     end
 
-    it "returns nil when trying to find! a record with an unknown prefix" do
-      expect(CoolId.find!("unknown_prefix_123")).to be_nil
+    it "returns nil when trying to locate! a record with an unknown prefix" do
+      expect(CoolId.locate!("unknown_prefix_123")).to be_nil
     end
 
     it "works with different separators" do
       user = User.create(name: "John Doe")
       custom_user = CustomUser.create(name: "Jane Doe")
 
-      expect(CoolId.find(user.id)).to eq(user)
-      expect(CoolId.find(custom_user.id)).to eq(custom_user)
+      expect(CoolId.locate(user.id)).to eq(user)
+      expect(CoolId.locate(custom_user.id)).to eq(custom_user)
     end
   end
 end
