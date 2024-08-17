@@ -86,13 +86,13 @@ module CoolId
     class_methods do
       attr_reader :cool_id_config
 
-      def cool_id(options = {})
+      def cool_id(options)
         @cool_id_config = Config.new(**options)
         CoolId.registry.register(options[:prefix], self)
       end
 
       def generate_cool_id
-        CoolId.generate_id(@cool_id_config || Config.new(prefix: nil))
+        CoolId.generate_id(@cool_id_config)
       end
     end
 
