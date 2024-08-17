@@ -21,7 +21,7 @@ RSpec.describe CoolId do
 
   describe ".generate_id" do
     it "generates an ID with default parameters" do
-      config = CoolId::Config.new
+      config = CoolId::Config.new(prefix: "")
       id = CoolId.generate_id(config)
       expect(id).to match(/^[0-9a-z]{12}$/)
     end
@@ -34,6 +34,12 @@ RSpec.describe CoolId do
 
     it "generates an ID without prefix when prefix is empty" do
       config = CoolId::Config.new(prefix: "", length: 15)
+      id = CoolId.generate_id(config)
+      expect(id).to match(/^[0-9a-z]{15}$/)
+    end
+
+    it "generates an ID without prefix when prefix is nil" do
+      config = CoolId::Config.new(prefix: nil, length: 15)
       id = CoolId.generate_id(config)
       expect(id).to match(/^[0-9a-z]{15}$/)
     end
