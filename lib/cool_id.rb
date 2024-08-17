@@ -51,31 +51,30 @@ module CoolId
     attr_reader :prefix, :length, :alphabet
 
     def initialize(prefix:, length: 12, alphabet: "0123456789abcdefghijklmnopqrstuvwxyz")
-      self.prefix = prefix
       @length = length
+      self.prefix = prefix
       self.alphabet = alphabet
     end
 
     def prefix=(value)
-      if value.nil? || value.empty?
-        @prefix = nil
-      else
-        raise ArgumentError, "Prefix cannot consist only of whitespace" if value.strip.empty?
-        @prefix = value
-      end
+      @prefix = validate_prefix(value)
     end
 
     def alphabet=(value)
-      validate_alphabet(value)
-      @alphabet = value
+      @alphabet = validate_alphabet(value)
     end
 
     private
 
+    def validate_prefix(value)
+      return nil if value.nil? || value.empty?
+      raise ArgumentError, "Prefix cannot consist only of whitespace" if value.strip.empty?
+      value
+    end
+
     def validate_alphabet(value)
-      if value.include?(CoolId.separator)
-        raise ArgumentError, "Alphabet cannot include the separator '#{CoolId.separator}'"
-      end
+      raise ArgumentError, "Alphabet cannot include the separator '#{CoolId.separator}'" if value.include?(CoolId.separator)
+      value
     end
   end
 
