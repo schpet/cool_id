@@ -9,7 +9,7 @@ module CoolId
   class Error < StandardError; end
 
   class << self
-    attr_accessor :separator, :alphabet
+    attr_accessor :separator, :alphabet, :length
 
     def configure
       yield self
@@ -21,13 +21,15 @@ module CoolId
 
     def generate_id(config)
       alphabet = config.alphabet || @alphabet
-      id = Nanoid.generate(size: config.length, alphabet: alphabet)
+      length = config.length || @length
+      id = Nanoid.generate(size: length, alphabet: alphabet)
       [config.prefix, id].compact.reject(&:empty?).join(@separator)
     end
   end
 
   self.separator = "_"
   self.alphabet = "0123456789abcdefghijklmnopqrstuvwxyz"
+  self.length = 12
 
   class Registry
     def initialize
@@ -52,7 +54,7 @@ module CoolId
   class Config
     attr_reader :prefix, :length, :alphabet
 
-    def initialize(prefix:, length: 12, alphabet: nil)
+    def initialize(prefix:, length: nil, alphabet: nil)
       @length = length
       @prefix = validate_prefix(prefix)
       @alphabet = validate_alphabet(alphabet)

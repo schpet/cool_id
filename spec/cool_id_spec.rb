@@ -63,6 +63,24 @@ RSpec.describe CoolId do
       expect(id).to match(/^test-[0-9a-z]{10}$/)
       CoolId.separator = "_" # Reset to default
     end
+
+    it "uses the globally configured length" do
+      original_length = CoolId.length
+      CoolId.configure { |config| config.length = 8 }
+      config = CoolId::Config.new(prefix: "test")
+      id = CoolId.generate_id(config)
+      expect(id).to match(/^test_[0-9a-z]{8}$/)
+      CoolId.length = original_length # Reset to default
+    end
+
+    it "uses the config length over the global length" do
+      original_length = CoolId.length
+      CoolId.configure { |config| config.length = 8 }
+      config = CoolId::Config.new(prefix: "test", length: 6)
+      id = CoolId.generate_id(config)
+      expect(id).to match(/^test_[0-9a-z]{6}$/)
+      CoolId.length = original_length # Reset to default
+    end
   end
 
   describe CoolId::Model do
