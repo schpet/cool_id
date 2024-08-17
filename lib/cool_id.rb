@@ -114,4 +114,8 @@ module CoolId
   def self.locate(id)
     registry.locate(id)
   end
+
+  def self.parse(id)
+    registry.parse(id)
+  end
 end
