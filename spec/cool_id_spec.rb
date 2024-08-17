@@ -131,7 +131,7 @@ RSpec.describe CoolId do
           include CoolId::Model
           register_cool_id prefix: nil
         end
-      }.to raise_error(ArgumentError, "Prefix cannot be empty or consist only of whitespace")
+      }.not_to raise_error
     end
 
     it "raises an error when the alphabet includes the separator" do

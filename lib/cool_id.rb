@@ -90,7 +90,7 @@ module CoolId
       end
 
       def register_cool_id(options = {})
-        raise ArgumentError, "Prefix cannot be empty" if options[:prefix] && options[:prefix].empty?
+        raise ArgumentError, "Prefix cannot be empty or consist only of whitespace" if options[:prefix] && options[:prefix].strip.empty?
         @cool_id_config = Config.new(**options)
         CoolId.registry.register(options[:prefix], self)
       end
