@@ -51,9 +51,14 @@ module CoolId
     attr_reader :prefix, :length, :alphabet
 
     def initialize(prefix:, length: 12, alphabet: "0123456789abcdefghijklmnopqrstuvwxyz")
-      @prefix = prefix
+      self.prefix = prefix
       @length = length
       self.alphabet = alphabet
+    end
+
+    def prefix=(value)
+      raise ArgumentError, "Prefix cannot be empty or consist only of whitespace" if value.nil? || value.strip.empty?
+      @prefix = value
     end
 
     def alphabet=(value)

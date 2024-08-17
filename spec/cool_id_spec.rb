@@ -105,13 +105,27 @@ RSpec.describe CoolId do
       CoolId.separator = original_separator
     end
 
-    it "raises an error when trying to set an empty prefix" do
+    it "raises an error when trying to set an empty or whitespace-only prefix" do
       expect {
         Class.new(ActiveRecord::Base) do
           include CoolId::Model
           register_cool_id prefix: ""
         end
-      }.to raise_error(ArgumentError, "Prefix cannot be empty")
+      }.to raise_error(ArgumentError, "Prefix cannot be empty or consist only of whitespace")
+
+      expect {
+        Class.new(ActiveRecord::Base) do
+          include CoolId::Model
+          register_cool_id prefix: "   "
+        end
+      }.to raise_error(ArgumentError, "Prefix cannot be empty or consist only of whitespace")
+
+      expect {
+        Class.new(ActiveRecord::Base) do
+          include CoolId::Model
+          register_cool_id prefix: nil
+        end
+      }.to raise_error(ArgumentError, "Prefix cannot be empty or consist only of whitespace")
     end
 
     it "raises an error when the alphabet includes the separator" do
