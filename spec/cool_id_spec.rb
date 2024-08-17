@@ -15,6 +15,10 @@ class CustomUser < ActiveRecord::Base
 end
 
 RSpec.describe CoolId do
+  before(:each) do
+    CoolId.reset_configuration
+  end
+
   it "has a version number" do
     expect(CoolId::VERSION).not_to be nil
   end
@@ -55,25 +59,20 @@ RSpec.describe CoolId do
       config = CoolId::Config.new(prefix: "test", length: 10)
       id = CoolId.generate_id(config)
       expect(id).to match(/^test-[0-9a-z]{10}$/)
-      CoolId.separator = "_" # Reset to default
     end
 
     it "uses the globally configured length" do
-      original_length = CoolId.length
       CoolId.configure { |config| config.length = 8 }
       config = CoolId::Config.new(prefix: "test")
       id = CoolId.generate_id(config)
       expect(id).to match(/^test_[0-9a-z]{8}$/)
-      CoolId.length = original_length # Reset to default
     end
 
     it "uses the config length over the global length" do
-      original_length = CoolId.length
       CoolId.configure { |config| config.length = 8 }
       config = CoolId::Config.new(prefix: "test", length: 6)
       id = CoolId.generate_id(config)
       expect(id).to match(/^test_[0-9a-z]{6}$/)
-      CoolId.length = original_length # Reset to default
     end
 
     it "resets configuration to default values" do
