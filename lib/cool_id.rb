@@ -57,8 +57,12 @@ module CoolId
     end
 
     def prefix=(value)
-      raise ArgumentError, "Prefix cannot be empty or consist only of whitespace" if value.nil? || value.strip.empty?
-      @prefix = value
+      if value.nil? || value.empty?
+        @prefix = nil
+      else
+        raise ArgumentError, "Prefix cannot consist only of whitespace" if value.strip.empty?
+        @prefix = value
+      end
     end
 
     def alphabet=(value)
