@@ -21,9 +21,9 @@ RSpec.describe CoolId do
 
   describe ".generate_id" do
     it "generates an ID with default parameters" do
-      config = CoolId::Config.new(prefix: nil)
+      config = CoolId::Config.new(prefix: "X")
       id = CoolId.generate_id(config)
-      expect(id).to match(/^[0-9a-z]{12}$/)
+      expect(id).to match(/^X_[0-9a-z]{12}$/)
     end
 
     it "generates an ID with an empty prefix" do
@@ -42,12 +42,6 @@ RSpec.describe CoolId do
       config = CoolId::Config.new(prefix: "X", length: 15)
       id = CoolId.generate_id(config)
       expect(id).to match(/^X_[0-9a-z]{15}$/)
-    end
-
-    it "generates an ID without prefix when prefix is nil" do
-      config = CoolId::Config.new(prefix: nil, length: 15)
-      id = CoolId.generate_id(config)
-      expect(id).to match(/^[0-9a-z]{15}$/)
     end
 
     it "generates an ID with custom alphabet" do
@@ -149,7 +143,7 @@ RSpec.describe CoolId do
           include CoolId::Model
           register_cool_id prefix: nil
         end
-      }.not_to raise_error
+      }.to raise_error(ArgumentError, "Prefix cannot be nil")
     end
 
     it "raises an error when the alphabet includes the separator" do

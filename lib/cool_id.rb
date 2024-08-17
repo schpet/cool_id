@@ -25,7 +25,9 @@ module CoolId
       alphabet = config.alphabet || @alphabet
       length = config.length || @length
       id = Nanoid.generate(size: length, alphabet: alphabet)
-      [config.prefix, id].compact.reject(&:empty?).join(@separator)
+      # [config.prefix, id].compact.reject(&:empty?).join(@separator)
+
+      "#{config.prefix}#{@separator}#{id}"
     end
   end
 
@@ -67,7 +69,7 @@ module CoolId
     private
 
     def validate_prefix(value)
-      return nil if value.nil?
+      raise ArgumentError, "Prefix cannot be nil" if value.nil?
       raise ArgumentError, "Prefix cannot consist only of whitespace" if value.strip.empty?
       value
     end
