@@ -6,12 +6,12 @@ require "active_record"
 
 class User < ActiveRecord::Base
   include CoolId::Model
-  register_cool_id prefix: "usr"
+  cool_id prefix: "usr"
 end
 
 class CustomUser < ActiveRecord::Base
   include CoolId::Model
-  register_cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8
+  cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8
 end
 
 RSpec.describe CoolId do
@@ -127,21 +127,21 @@ RSpec.describe CoolId do
       expect {
         Class.new(ActiveRecord::Base) do
           include CoolId::Model
-          register_cool_id prefix: ""
+          cool_id prefix: ""
         end
       }.to raise_error(ArgumentError, "Prefix cannot consist only of whitespace")
 
       expect {
         Class.new(ActiveRecord::Base) do
           include CoolId::Model
-          register_cool_id prefix: "   "
+          cool_id prefix: "   "
         end
       }.to raise_error(ArgumentError, "Prefix cannot consist only of whitespace")
 
       expect {
         Class.new(ActiveRecord::Base) do
           include CoolId::Model
-          register_cool_id prefix: nil
+          cool_id prefix: nil
         end
       }.to raise_error(ArgumentError, "Prefix cannot be nil")
     end

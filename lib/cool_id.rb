@@ -87,10 +87,6 @@ module CoolId
       attr_reader :cool_id_config
 
       def cool_id(options = {})
-        register_cool_id(options)
-      end
-
-      def register_cool_id(options = {})
         @cool_id_config = Config.new(**options)
         CoolId.registry.register(options[:prefix], self)
       end
