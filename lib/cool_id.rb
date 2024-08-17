@@ -9,7 +9,7 @@ module CoolId
   class Error < StandardError; end
 
   class << self
-    attr_accessor :separator
+    attr_accessor :separator, :alphabet
 
     def configure
       yield self
@@ -20,12 +20,14 @@ module CoolId
     end
 
     def generate_id(config)
-      id = Nanoid.generate(size: config.length, alphabet: config.alphabet)
+      alphabet = config.alphabet || @alphabet
+      id = Nanoid.generate(size: config.length, alphabet: alphabet)
       [config.prefix, id].compact.reject(&:empty?).join(@separator)
     end
   end
 
   self.separator = "_"
+  self.alphabet = "0123456789abcdefghijklmnopqrstuvwxyz"
 
   class Registry
     def initialize
@@ -50,7 +52,7 @@ module CoolId
   class Config
     attr_reader :prefix, :length, :alphabet
 
-    def initialize(prefix:, length: 12, alphabet: "0123456789abcdefghijklmnopqrstuvwxyz")
+    def initialize(prefix:, length: 12, alphabet: nil)
       @length = length
       self.prefix = prefix
       self.alphabet = alphabet
@@ -73,6 +75,7 @@ module CoolId
     end
 
     def validate_alphabet(value)
+      return nil if value.nil?
       raise ArgumentError, "Alphabet cannot include the separator '#{CoolId.separator}'" if value.include?(CoolId.separator)
       value
     end
