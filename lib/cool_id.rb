@@ -21,7 +21,7 @@ module CoolId
 
     def generate_id(config)
       id = Nanoid.generate(size: config.length, alphabet: config.alphabet)
-      [config.prefix, id].reject(&:empty?).join(@separator)
+      [config.prefix, id].compact.reject(&:empty?).join(@separator)
     end
   end
 
@@ -50,7 +50,7 @@ module CoolId
   class Config
     attr_reader :prefix, :length, :alphabet
 
-    def initialize(prefix: "", length: 12, alphabet: "0123456789abcdefghijklmnopqrstuvwxyz")
+    def initialize(prefix:, length: 12, alphabet: "0123456789abcdefghijklmnopqrstuvwxyz")
       @prefix = prefix
       @length = length
       self.alphabet = alphabet
