@@ -42,10 +42,6 @@ module CoolId
       @registry[prefix] = model_class
     end
 
-    def lookup_model(prefix)
-      @registry[prefix]
-    end
-
     def locate(id)
       parsed = parse(id)
       parsed&.model_class&.find_by(id: id)
@@ -53,7 +49,7 @@ module CoolId
 
     def parse(id)
       prefix, key = id.split(CoolId.separator, 2)
-      model_class = lookup_model(prefix)
+      model_class = @registry[prefix]
       return nil unless model_class
       Id.new(key, prefix, id, model_class)
     end
