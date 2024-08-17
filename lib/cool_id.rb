@@ -3,16 +3,27 @@
 require_relative "cool_id/version"
 require "nanoid"
 require "active_support/concern"
-require "active_record"
 
 module CoolId
   class Error < StandardError; end
 
+  DEFAULT_SEPARATOR = "_"
+  DEFAULT_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz"
+  DEFAULT_LENGTH = 12
+
+  Id = Struct.new(:key, :prefix, :id, :model_class)
+
   class << self
-    attr_accessor :separator
+    attr_accessor :separator, :alphabet, :length
 
     def configure
       yield self
+    end
+
+    def reset_configuration
+      self.separator = DEFAULT_SEPARATOR
+      self.alphabet = DEFAULT_ALPHABET
+      self.length = DEFAULT_LENGTH
     end
 
     def registry
@@ -20,12 +31,18 @@ module CoolId
     end
 
     def generate_id(config)
-      id = Nanoid.generate(size: config.length, alphabet: config.alphabet)
-      [config.prefix, id].reject(&:empty?).join(@separator)
+      alphabet = config.alphabet || @alphabet
+      length = config.length || @length
+      id = Nanoid.generate(size: length, alphabet: alphabet)
+
+      "#{config.prefix}#{separator}#{id}"
     end
   end
 
-  self.separator = "_"
+  # defaults based on https://planetscale.com/blog/why-we-chose-nanoids-for-planetscales-api
+  self.separator = DEFAULT_SEPARATOR
+  self.alphabet = DEFAULT_ALPHABET
+  self.length = DEFAULT_LENGTH
 
   class Registry
     def initialize
@@ -36,43 +53,40 @@ module CoolId
       @registry[prefix] = model_class
     end
 
-    def find_model(prefix)
-      @registry[prefix]
+    def locate(id)
+      parsed = parse(id)
+      parsed&.model_class&.find_by(id: id)
     end
 
-    def find_record(id)
-      prefix, _ = id.split(CoolId.separator, 2)
-      model_class = find_model(prefix)
-      model_class&.find_by(id: id)
-    end
-
-    def find_record!(id)
-      prefix, _ = id.split(CoolId.separator, 2)
-      model_class = find_model(prefix)
-      model_class&.find(id)
+    def parse(id)
+      prefix, key = id.split(CoolId.separator, 2)
+      model_class = @registry[prefix]
+      return nil unless model_class
+      Id.new(key, prefix, id, model_class)
     end
   end
 
   class Config
     attr_reader :prefix, :length, :alphabet
 
-    def initialize(prefix: "", length: 12, alphabet: "0123456789abcdefghijklmnopqrstuvwxyz")
-      @prefix = prefix
+    def initialize(prefix:, length: nil, alphabet: nil)
       @length = length
-      self.alphabet = alphabet
-    end
-
-    def alphabet=(value)
-      validate_alphabet(value)
-      @alphabet = value
+      @prefix = validate_prefix(prefix)
+      @alphabet = validate_alphabet(alphabet)
     end
 
     private
 
+    def validate_prefix(value)
+      raise ArgumentError, "Prefix cannot be nil" if value.nil?
+      raise ArgumentError, "Prefix cannot consist only of whitespace" if value.strip.empty?
+      value
+    end
+
     def validate_alphabet(value)
-      if value.include?(CoolId.separator)
-        raise ArgumentError, "Alphabet cannot include the separator '#{CoolId.separator}'"
-      end
+      return nil if value.nil?
+      raise ArgumentError, "Alphabet cannot include the separator '#{CoolId.separator}'" if value.include?(CoolId.separator)
+      value
     end
   end
 
@@ -82,18 +96,13 @@ module CoolId
     class_methods do
       attr_reader :cool_id_config
 
-      def cool_id(options = {})
-        register_cool_id(options)
-      end
-
-      def register_cool_id(options = {})
-        raise ArgumentError, "Prefix cannot be empty" if options[:prefix] && options[:prefix].empty?
+      def cool_id(options)
         @cool_id_config = Config.new(**options)
         CoolId.registry.register(options[:prefix], self)
       end
 
       def generate_cool_id
-        CoolId.generate_id(@cool_id_config || Config.new)
+        CoolId.generate_id(@cool_id_config)
       end
     end
 
@@ -108,11 +117,11 @@ module CoolId
     end
   end
 
-  def self.find(id)
-    registry.find_record(id)
+  def self.locate(id)
+    registry.locate(id)
   end
 
-  def self.find!(id)
-    registry.find_record!(id)
+  def self.parse(id)
+    registry.parse(id)
   end
 end

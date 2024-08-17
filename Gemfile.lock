@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cool_id (0.1.0)
+    cool_id (0.1.1)
       activerecord (>= 6.0)
       activesupport (>= 6.0)
       nanoid (~> 2.0)
