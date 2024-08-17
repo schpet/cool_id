@@ -45,7 +45,7 @@ RSpec.describe CoolId do
     end
 
     it "generates an ID with custom alphabet" do
-      config = CoolId::Config.new(alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 10)
+      config = CoolId::Config.new(prefix: "", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 10)
       id = CoolId.generate_id(config)
       expect(id).to match(/^[A-Z]{10}$/)
     end
