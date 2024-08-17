@@ -129,11 +129,10 @@ RSpec.describe CoolId do
     end
 
     it "generates a cool_id with custom settings" do
-      original_separator = CoolId.separator
       CoolId.separator = "-"
       custom_user = CustomUser.create(name: "Alice")
       expect(custom_user.id).to match(/^cus-[A-Z]{8}$/)
-      CoolId.separator = original_separator
+      CoolId.reset_configuration
     end
 
     it "raises an error when trying to set an empty or whitespace-only prefix" do
@@ -160,12 +159,11 @@ RSpec.describe CoolId do
     end
 
     it "raises an error when the alphabet includes the separator" do
-      original_separator = CoolId.separator
       CoolId.separator = "-"
       expect {
         CoolId::Config.new(prefix: "test", alphabet: "ABC-DEF")
       }.to raise_error(ArgumentError, "Alphabet cannot include the separator '-'")
-      CoolId.separator = original_separator
+      CoolId.reset_configuration
     end
 
     it "can locate a record using CoolId.locate" do
