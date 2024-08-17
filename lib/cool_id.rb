@@ -8,6 +8,8 @@ require "active_record"
 module CoolId
   class Error < StandardError; end
 
+  Id = Struct.new(:key, :prefix, :id, :model_class)
+
   class << self
     attr_accessor :separator, :alphabet, :length
 
@@ -45,9 +47,15 @@ module CoolId
     end
 
     def locate(id)
-      prefix, _ = id.split(CoolId.separator, 2)
+      parsed = parse(id)
+      parsed&.model_class&.find_by(id: id)
+    end
+
+    def parse(id)
+      prefix, key = id.split(CoolId.separator, 2)
       model_class = lookup_model(prefix)
-      model_class&.find_by(id: id)
+      return nil unless model_class
+      Id.new(key, prefix, id, model_class)
     end
   end
 
