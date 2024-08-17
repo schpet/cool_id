@@ -75,6 +75,20 @@ RSpec.describe CoolId do
       expect(id).to match(/^test_[0-9a-z]{6}$/)
       CoolId.length = original_length # Reset to default
     end
+
+    it "resets configuration to default values" do
+      CoolId.configure do |config|
+        config.separator = "-"
+        config.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        config.length = 8
+      end
+
+      CoolId.reset_configuration
+
+      expect(CoolId.separator).to eq(CoolId::DEFAULT_SEPARATOR)
+      expect(CoolId.alphabet).to eq(CoolId::DEFAULT_ALPHABET)
+      expect(CoolId.length).to eq(CoolId::DEFAULT_LENGTH)
+    end
   end
 
   describe CoolId::Model do

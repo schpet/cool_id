@@ -20,6 +20,12 @@ module CoolId
       yield self
     end
 
+    def reset_configuration
+      self.separator = DEFAULT_SEPARATOR
+      self.alphabet = DEFAULT_ALPHABET
+      self.length = DEFAULT_LENGTH
+    end
+
     def registry
       @registry ||= Registry.new
     end
