@@ -40,13 +40,13 @@ module CoolId
       @registry[prefix] = model_class
     end
 
-    def find_model(prefix)
+    def lookup_model(prefix)
       @registry[prefix]
     end
 
     def locate(id)
       prefix, _ = id.split(CoolId.separator, 2)
-      model_class = find_model(prefix)
+      model_class = lookup_model(prefix)
       model_class&.find_by(id: id)
     end
   end
