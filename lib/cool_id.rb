@@ -44,7 +44,7 @@ module CoolId
       @registry[prefix]
     end
 
-    def find_record(id)
+    def locate(id)
       prefix, _ = id.split(CoolId.separator, 2)
       model_class = find_model(prefix)
       model_class&.find_by(id: id)
@@ -108,6 +108,6 @@ module CoolId
   end
 
   def self.locate(id)
-    registry.find_record(id)
+    registry.locate(id)
   end
 end
