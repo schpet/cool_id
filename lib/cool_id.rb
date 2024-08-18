@@ -106,11 +106,11 @@ module CoolId
         CoolId.generate_id(@cool_id_config)
       end
 
-      def ensure_cool_id_setup
+      def enforce_cool_id_for_descendants
         @cool_id_setup_required = true
       end
 
-      def skip_cool_id_setup
+      def skip_enforce_cool_id_for_descendants
         @cool_id_setup_required = false
       end
 
@@ -134,7 +134,7 @@ module CoolId
 
       def ensure_cool_id_configured
         if self.class.cool_id_setup_required && self.class.cool_id_config.nil?
-          raise Error, "CoolId not configured for #{self.class}. Use 'cool_id' to configure or 'skip_cool_id_setup' to opt out."
+          raise Error, "CoolId not configured for #{self.class}. Use 'cool_id' to configure or 'skip_enforce_cool_id_for_descendants' to opt out."
         end
       end
     end

@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
   cool_id prefix: "usr"
 end
 
-class CustomUser < ActiveRecord::Base
+class Customer < ActiveRecord::Base
   include CoolId::Model
   cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8
 end
@@ -97,13 +97,11 @@ RSpec.describe CoolId do
 
     before(:each) do
       ActiveRecord::Schema.define do
-        create_table :users, id: false do |t|
-          t.string :id, primary_key: true
+        create_table :users, id: :string do |t|
           t.string :name
         end
 
-        create_table :custom_users, id: false do |t|
-          t.string :id, primary_key: true
+        create_table :customers, id: :string do |t|
           t.string :name
         end
       end
@@ -111,7 +109,7 @@ RSpec.describe CoolId do
 
     after(:each) do
       ActiveRecord::Base.connection.drop_table :users
-      ActiveRecord::Base.connection.drop_table :custom_users
+      ActiveRecord::Base.connection.drop_table :customers
     end
 
     after(:all) do
@@ -130,8 +128,8 @@ RSpec.describe CoolId do
 
     it "generates a cool_id with custom settings" do
       CoolId.separator = "-"
-      custom_user = CustomUser.create(name: "Alice")
-      expect(custom_user.id).to match(/^cus-[A-Z]{8}$/)
+      customer = Customer.create(name: "Alice")
+      expect(customer.id).to match(/^cus-[A-Z]{8}$/)
       CoolId.reset_configuration
     end
 
@@ -175,9 +173,9 @@ RSpec.describe CoolId do
     end
 
     it "can locate a custom record using CoolId.locate" do
-      custom_user = CustomUser.create(name: "Alice")
-      located_custom_user = CoolId.locate(custom_user.id)
-      expect(located_custom_user).to eq(custom_user)
+      customer = Customer.create(name: "Alice")
+      located_customer = CoolId.locate(customer.id)
+      expect(located_customer).to eq(customer)
     end
 
     it "returns nil when trying to locate a non-existent record" do
@@ -190,10 +188,10 @@ RSpec.describe CoolId do
 
     it "works with different separators" do
       user = User.create(name: "John Doe")
-      custom_user = CustomUser.create(name: "Jane Doe")
+      customer = Customer.create(name: "Jane Doe")
 
       expect(CoolId.locate(user.id)).to eq(user)
-      expect(CoolId.locate(custom_user.id)).to eq(custom_user)
+      expect(CoolId.locate(customer.id)).to eq(customer)
     end
   end
 
@@ -247,21 +245,21 @@ RSpec.describe CoolId do
       class BaseRecord < ActiveRecord::Base
         self.abstract_class = true
         include CoolId::Model
-        ensure_cool_id_setup
+        enforce_cool_id_for_descendants
       end
 
       expect {
         class UnconfiguredModel < BaseRecord
         end
         UnconfiguredModel.new
-      }.to raise_error(CoolId::Error, "CoolId not configured for UnconfiguredModel. Use 'cool_id' to configure or 'skip_cool_id_setup' to opt out.")
+      }.to raise_error(CoolId::Error, "CoolId not configured for UnconfiguredModel. Use 'cool_id' to configure or 'skip_enforce_cool_id_for_descendants' to opt out.")
     end
 
     it "does not raise an error when cool_id is configured in a subclass" do
       class BaseRecord < ActiveRecord::Base
         self.abstract_class = true
         include CoolId::Model
-        ensure_cool_id_setup
+        enforce_cool_id_for_descendants
       end
 
       expect {
@@ -276,12 +274,12 @@ RSpec.describe CoolId do
       class BaseRecord < ActiveRecord::Base
         self.abstract_class = true
         include CoolId::Model
-        ensure_cool_id_setup
+        enforce_cool_id_for_descendants
       end
 
       expect {
         class SkippedModel < BaseRecord
-          skip_cool_id_setup
+          skip_enforce_cool_id_for_descendants
         end
         SkippedModel.new
       }.not_to raise_error

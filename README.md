@@ -1,31 +1,89 @@
-# CoolId
+# cool_id
 
-TODO: Delete this and the text below, and describe your gem
+a gem for rails that generates string ids for active record models with a per-model prefix followed by a nanoid.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/cool_id`. To experiment with that code, run `bin/console` for an interactive prompt.
+```ruby
+class User < ActiveRecord::Base
+  include CoolId::Model
+  cool_id prefix: "usr"
+end
 
-## Installation
+User.create!(name: "...").id
+# => "usr_vktd1b5v84lr"
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+class Customer < ActiveRecord::Base
+  include CoolId::Model
+  cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8
+end
 
-Install the gem and add to the application's Gemfile by executing:
+Customer.create!(name: "...").id
+# => "cus-UHNYBINU"
+```
 
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+it can also lookup records by ids, similar to global id:
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+```ruby
+user = User.create!(name: "John Doe")
+# => #<User id: "usr_vktd1b5v84lr", name: "John Doe">
 
-    $ gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+CoolId.locate("usr_vktd1b5v84lr")
+# => #<User id: "usr_vktd1b5v84lr", name: "John Doe">
 
-## Usage
+# You can also parse the id without fetching the record
+parsed = CoolId.parse("usr_vktd1b5v84lr")
+# => #<struct CoolId::Id key="vktd1b5v84lr", prefix="usr", id="usr_vktd1b5v84lr", model_class=User>
 
-TODO: Write usage instructions here
+parsed.model_class
+# => User
+```
 
-## Development
+## installation
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+```bash
+bundle add cool_id
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```ruby
+gem "cool_id"
+```
 
-## Contributing
+### per-model
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/cool_id.
+use string ids when creating a table
+
+```ruby
+create_table :users, id: :string do |t|
+  t.string :name
+end
+```
+
+include the `CoolId::Model` concern in the active record model and set up a prefix
+
+```ruby
+class User < ActiveRecord::Base
+  include CoolId::Model
+  cool_id prefix: "usr"
+end
+```
+
+### all models
+
+use string ids on all new generated migrations
+
+```ruby
+# config/initializers/generators.rb
+Rails.application.config.generators do |g|
+  g.orm :active_record, primary_key_type: :string
+end
+```
+
+setup `ApplicationRecord` to include cool id and ensure it's setup in classes that inherit from it
+
+```ruby
+# app/models/application_record.rb
+class ApplicationRecord < ActiveRecord::Base
+  include CoolId::Model
+  primary_abstract_class
+  enforce_cool_id_for_descendants
+end
+```
