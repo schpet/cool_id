@@ -62,9 +62,9 @@ CoolId.configure do |config|
 end
 ```
 
-This configuration will apply to all models using CoolId unless overridden at the model level.
-
 ## installation
+
+add cool_id to your Gemfile:
 
 ```bash
 bundle add cool_id
@@ -74,7 +74,7 @@ bundle add cool_id
 gem "cool_id"
 ```
 
-### per-model
+### using cool_id in one model
 
 use string ids when creating a table
 
@@ -93,7 +93,7 @@ class User < ActiveRecord::Base
 end
 ```
 
-### all models
+### using cool_id on all models
 
 you have drank the coolaid. setup rails to use string ids on all new generated migrations
 
