@@ -1,6 +1,6 @@
 # cool_id
 
-a gem for rails that generates string ids for active record models with a per-model prefix followed by a nanoid.
+a gem for rails that generates string primary key ids for active record models with a per-model prefix followed by a nanoid. 
 
 ```ruby
 class User < ActiveRecord::Base
@@ -10,12 +10,39 @@ end
 
 User.create!(name: "...").id
 # => "usr_vktd1b5v84lr"
+```
 
+```
+
+it can also lookup records similar to global id:
+
+```ruby
+CoolId.locate("usr_vktd1b5v84lr")
+# => #<User id: "usr_vktd1b5v84lr", name: "John Doe">
+```
+
+and parse ids
+
+```ruby
+parsed = CoolId.parse("usr_vktd1b5v84lr")
+# => #<struct CoolId::Id key="vktd1b5v84lr", prefix="usr", id="usr_vktd1b5v84lr", model_class=User>
+
+parsed.model_class
+# => User
+```
+
+and generate ids without creating a record
+
+```ruby
 # generate an id, e.g. for batch inserts or upserts
 User.generate_cool_id
 # => "usr_vktd1b5v84lr"
 
+```
 
+it takes parameters to change the alphabet or length
+
+```ruby
 class Customer < ActiveRecord::Base
   include CoolId::Model
   cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8
@@ -25,21 +52,10 @@ Customer.create!(name: "...").id
 # => "cus_UHNYBINU"
 ```
 
-it can also lookup records similar to global id:
+and these can be configured globally
 
 ```ruby
-user = User.create!(name: "John Doe")
-# => #<User id: "usr_vktd1b5v84lr", name: "John Doe">
-
-CoolId.locate("usr_vktd1b5v84lr")
-# => #<User id: "usr_vktd1b5v84lr", name: "John Doe">
-
-# you can also parse the id without fetching the record
-parsed = CoolId.parse("usr_vktd1b5v84lr")
-# => #<struct CoolId::Id key="vktd1b5v84lr", prefix="usr", id="usr_vktd1b5v84lr", model_class=User>
-
-parsed.model_class
-# => User
+todo
 ```
 
 ## installation
@@ -95,3 +111,18 @@ end
 
 ### graphql
 
+if you use the graphql ruby node interface, you can implement [object identification](https://graphql-ruby.org/schema/object_identification)
+
+
+```ruby
+# app/graphql/app_schema.rb
+class AppSchema < GraphQL::Schema
+  def self.id_from_object(object, type_definition, query_ctx)
+    object.id
+  end
+
+  def self.object_from_id(id, query_ctx)
+    CoolId.locate(id)
+  end
+end
+```
