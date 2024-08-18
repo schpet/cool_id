@@ -12,8 +12,6 @@ User.create!(name: "...").id
 # => "usr_vktd1b5v84lr"
 ```
 
-```
-
 it can also lookup records similar to global id:
 
 ```ruby
