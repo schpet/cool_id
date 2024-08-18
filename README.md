@@ -17,7 +17,7 @@ class Customer < ActiveRecord::Base
 end
 
 Customer.create!(name: "...").id
-# => "cus-UHNYBINU"
+# => "cus_UHNYBINU"
 ```
 
 it can also lookup records by ids, similar to global id:
