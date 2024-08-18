@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "active_record"
+# rubocop:disable Lint/ConstantDefinitionInBlock
 
-# frozen_string_literal: true
+require "active_record"
 
 class User < ActiveRecord::Base
   include CoolId::Model
@@ -135,20 +135,13 @@ RSpec.describe CoolId do
       CoolId.reset_configuration
     end
 
-    it "raises an error when trying to set an empty or whitespace-only prefix" do
+    it "raises an error when trying to set an empty prefix" do
       expect {
         Class.new(ActiveRecord::Base) do
           include CoolId::Model
           cool_id prefix: ""
         end
-      }.to raise_error(ArgumentError, "Prefix cannot consist only of whitespace")
-
-      expect {
-        Class.new(ActiveRecord::Base) do
-          include CoolId::Model
-          cool_id prefix: "   "
-        end
-      }.to raise_error(ArgumentError, "Prefix cannot consist only of whitespace")
+      }.to raise_error(ArgumentError, "Prefix cannot be empty")
 
       expect {
         Class.new(ActiveRecord::Base) do
@@ -156,6 +149,15 @@ RSpec.describe CoolId do
           cool_id prefix: nil
         end
       }.to raise_error(ArgumentError, "Prefix cannot be nil")
+    end
+
+    it "allows whitespace-only prefix" do
+      expect {
+        Class.new(ActiveRecord::Base) do
+          include CoolId::Model
+          cool_id prefix: "   "
+        end
+      }.not_to raise_error
     end
 
     it "raises an error when the alphabet includes the separator" do
@@ -194,4 +196,97 @@ RSpec.describe CoolId do
       expect(CoolId.locate(custom_user.id)).to eq(custom_user)
     end
   end
+
+  describe "ensure_cool_id_setup behavior" do
+    before(:all) do
+      ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
+    end
+
+    before(:each) do
+      ActiveRecord::Schema.define do
+        create_table :base_records, id: false do |t|
+          t.string :id, primary_key: true
+          t.string :name
+        end
+
+        create_table :unconfigured_models, id: false do |t|
+          t.string :id, primary_key: true
+          t.string :name
+        end
+
+        create_table :configured_models, id: false do |t|
+          t.string :id, primary_key: true
+          t.string :name
+        end
+
+        create_table :skipped_models, id: false do |t|
+          t.string :id, primary_key: true
+          t.string :name
+        end
+
+        create_table :inherited_models, id: false do |t|
+          t.string :id, primary_key: true
+          t.string :name
+        end
+      end
+    end
+
+    after(:each) do
+      ActiveRecord::Base.connection.drop_table :base_records
+      ActiveRecord::Base.connection.drop_table :unconfigured_models
+      ActiveRecord::Base.connection.drop_table :configured_models
+      ActiveRecord::Base.connection.drop_table :skipped_models
+      ActiveRecord::Base.connection.drop_table :inherited_models
+    end
+
+    after(:all) do
+      ActiveRecord::Base.connection.close
+    end
+
+    it "raises an error when cool_id is not configured in a subclass" do
+      class BaseRecord < ActiveRecord::Base
+        self.abstract_class = true
+        include CoolId::Model
+        ensure_cool_id_setup
+      end
+
+      expect {
+        class UnconfiguredModel < BaseRecord
+        end
+        UnconfiguredModel.new
+      }.to raise_error(CoolId::Error, "CoolId not configured for UnconfiguredModel. Use 'cool_id' to configure or 'skip_cool_id_setup' to opt out.")
+    end
+
+    it "does not raise an error when cool_id is configured in a subclass" do
+      class BaseRecord < ActiveRecord::Base
+        self.abstract_class = true
+        include CoolId::Model
+        ensure_cool_id_setup
+      end
+
+      expect {
+        class ConfiguredModel < BaseRecord
+          cool_id prefix: "cfg"
+        end
+        ConfiguredModel.new
+      }.not_to raise_error
+    end
+
+    it "does not raise an error when cool_id setup is skipped" do
+      class BaseRecord < ActiveRecord::Base
+        self.abstract_class = true
+        include CoolId::Model
+        ensure_cool_id_setup
+      end
+
+      expect {
+        class SkippedModel < BaseRecord
+          skip_cool_id_setup
+        end
+        SkippedModel.new
+      }.not_to raise_error
+    end
+  end
 end
+
+# rubocop:enable Lint/ConstantDefinitionInBlock

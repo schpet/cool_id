@@ -7,6 +7,7 @@ require "active_support/concern"
 module CoolId
   class Error < StandardError; end
 
+  # defaults based on https://planetscale.com/blog/why-we-chose-nanoids-for-planetscales-api
   DEFAULT_SEPARATOR = "_"
   DEFAULT_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz"
   DEFAULT_LENGTH = 12
@@ -27,7 +28,7 @@ module CoolId
     end
 
     def registry
-      @registry ||= Registry.new
+      @prefix_map ||= Registry.new
     end
 
     def generate_id(config)
@@ -39,18 +40,17 @@ module CoolId
     end
   end
 
-  # defaults based on https://planetscale.com/blog/why-we-chose-nanoids-for-planetscales-api
   self.separator = DEFAULT_SEPARATOR
   self.alphabet = DEFAULT_ALPHABET
   self.length = DEFAULT_LENGTH
 
   class Registry
     def initialize
-      @registry = {}
+      @prefix_map = {}
     end
 
     def register(prefix, model_class)
-      @registry[prefix] = model_class
+      @prefix_map[prefix] = model_class
     end
 
     def locate(id)
@@ -60,7 +60,7 @@ module CoolId
 
     def parse(id)
       prefix, key = id.split(CoolId.separator, 2)
-      model_class = @registry[prefix]
+      model_class = @prefix_map[prefix]
       return nil unless model_class
       Id.new(key, prefix, id, model_class)
     end
@@ -79,7 +79,7 @@ module CoolId
 
     def validate_prefix(value)
       raise ArgumentError, "Prefix cannot be nil" if value.nil?
-      raise ArgumentError, "Prefix cannot consist only of whitespace" if value.strip.empty?
+      raise ArgumentError, "Prefix cannot be empty" if value.empty?
       value
     end
 
@@ -94,7 +94,8 @@ module CoolId
     extend ActiveSupport::Concern
 
     class_methods do
-      attr_reader :cool_id_config
+      attr_accessor :cool_id_config
+      attr_accessor :cool_id_setup_required
 
       def cool_id(options)
         @cool_id_config = Config.new(**options)
@@ -104,15 +105,37 @@ module CoolId
       def generate_cool_id
         CoolId.generate_id(@cool_id_config)
       end
+
+      def ensure_cool_id_setup
+        @cool_id_setup_required = true
+      end
+
+      def skip_cool_id_setup
+        @cool_id_setup_required = false
+      end
+
+      def inherited(subclass)
+        super
+        if @cool_id_setup_required && !subclass.instance_variable_defined?(:@cool_id_setup_required)
+          subclass.instance_variable_set(:@cool_id_setup_required, true)
+        end
+      end
     end
 
     included do
       before_create :set_cool_id
+      after_initialize :ensure_cool_id_configured
 
       private
 
       def set_cool_id
         self.id = self.class.generate_cool_id if id.blank?
+      end
+
+      def ensure_cool_id_configured
+        if self.class.cool_id_setup_required && self.class.cool_id_config.nil?
+          raise Error, "CoolId not configured for #{self.class}. Use 'cool_id' to configure or 'skip_cool_id_setup' to opt out."
+        end
       end
     end
   end
