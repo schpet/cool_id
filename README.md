@@ -55,8 +55,14 @@ Customer.create!(name: "...").id
 and these can be configured globally
 
 ```ruby
-todo
+CoolId.configure do |config|
+  config.separator = "-"
+  config.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  config.length = 8
+end
 ```
+
+This configuration will apply to all models using CoolId unless overridden at the model level.
 
 ## installation
 
