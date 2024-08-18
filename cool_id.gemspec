@@ -11,6 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "generates cool ids"
   spec.description = "generates primary keys using prefixed nanoids for ActiveRecord models"
   spec.homepage = "https://github.com/schpet/cool_id"
+  spec.license = "ISC"
   spec.required_ruby_version = ">= 3.0.0"
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
@@ -18,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/schpet/cool_id"
   spec.metadata["changelog_uri"] = "https://github.com/schpet/cool_id/tree/main/CHANGELOG.md"
+  spec.metadata["license_uri"] = "https://github.com/schpet/cool_id/blob/main/LICENSE.txt"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
