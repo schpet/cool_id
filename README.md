@@ -11,6 +11,11 @@ end
 User.create!(name: "...").id
 # => "usr_vktd1b5v84lr"
 
+# generate an id, e.g. for batch inserts or upserts
+User.generate_cool_id
+# => "usr_vktd1b5v84lr"
+
+
 class Customer < ActiveRecord::Base
   include CoolId::Model
   cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8
@@ -20,7 +25,7 @@ Customer.create!(name: "...").id
 # => "cus_UHNYBINU"
 ```
 
-it can also lookup records by ids, similar to global id:
+it can also lookup records similar to global id:
 
 ```ruby
 user = User.create!(name: "John Doe")
@@ -29,7 +34,7 @@ user = User.create!(name: "John Doe")
 CoolId.locate("usr_vktd1b5v84lr")
 # => #<User id: "usr_vktd1b5v84lr", name: "John Doe">
 
-# You can also parse the id without fetching the record
+# you can also parse the id without fetching the record
 parsed = CoolId.parse("usr_vktd1b5v84lr")
 # => #<struct CoolId::Id key="vktd1b5v84lr", prefix="usr", id="usr_vktd1b5v84lr", model_class=User>
 
@@ -68,7 +73,7 @@ end
 
 ### all models
 
-use string ids on all new generated migrations
+you have drank the coolaid. setup rails to use string ids on all new generated migrations
 
 ```ruby
 # config/initializers/generators.rb
@@ -77,7 +82,7 @@ Rails.application.config.generators do |g|
 end
 ```
 
-setup `ApplicationRecord` to include cool id and ensure it's setup in classes that inherit from it
+then setup `ApplicationRecord` to include cool id and ensure it's setup in classes that inherit from it
 
 ```ruby
 # app/models/application_record.rb
@@ -87,3 +92,6 @@ class ApplicationRecord < ActiveRecord::Base
   enforce_cool_id_for_descendants
 end
 ```
+
+### graphql
+
