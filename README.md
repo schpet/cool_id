@@ -72,7 +72,7 @@ bundle add cool_id
 gem "cool_id"
 ```
 
-### using cool_id in one model
+### adding cool_id to a single model
 
 use string ids when creating a table
 
