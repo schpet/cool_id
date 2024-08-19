@@ -1,6 +1,6 @@
-# cool_id
+# cool id
 
-a gem for rails that generates string primary key ids for active record models with a per-model prefix followed by a nanoid. this lets you create stripe style ids in your own rails app, and they'll be the same ids you see in your database.
+gem for rails apps to generates string ids with a prefix, followed by a [nanoid](https://zelark.github.io/nano-id-cc/). similar to the ids you see in stripe's api. also able to lookup any record by id, similar to rails' globalid.
 
 ```ruby
 class User < ActiveRecord::Base
@@ -12,7 +12,7 @@ User.create!(name: "...").id
 # => "usr_vktd1b5v84lr"
 ```
 
-it can also lookup records similar to global id:
+lookup any record by its id
 
 ```ruby
 CoolId.locate("usr_vktd1b5v84lr")
