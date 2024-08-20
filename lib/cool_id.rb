@@ -5,7 +5,7 @@ require "nanoid"
 require "active_support/concern"
 
 module CoolId
-  class Error < StandardError; end
+  class NotConfiguredError < StandardError; end
 
   # defaults based on https://planetscale.com/blog/why-we-chose-nanoids-for-planetscales-api
   DEFAULT_SEPARATOR = "_"
@@ -110,7 +110,7 @@ module CoolId
         @cool_id_setup_required = true
       end
 
-      def skip_enforce_cool_id_for_descendants
+      def skip_enforce_cool_id
         @cool_id_setup_required = false
       end
 
@@ -134,7 +134,8 @@ module CoolId
 
       def ensure_cool_id_configured
         if self.class.cool_id_setup_required && self.class.cool_id_config.nil?
-          raise Error, "CoolId not configured for #{self.class}. Use 'cool_id' to configure or 'skip_enforce_cool_id_for_descendants' to opt out."
+          suggested_prefix = self.class.name.downcase[0..2]
+          raise NotConfiguredError, "CoolId not configured for #{self.class}. Use 'cool_id' to configure or 'skip_enforce_cool_id' to opt out.\n\ne.g.\n\nclass #{self.class} < ApplicationRecord\n  cool_id prefix: \"#{suggested_prefix}\"\nend"
         end
       end
     end
