@@ -1,0 +1,9 @@
+# https://aider.chat/docs/config/aider_conf.html
+
+lint-cmd: bundle exec standardrb --fix
+auto-lint: true
+
+test-cmd: bundle exec rspec --format progress --no-profile --no-color --fail-fast
+auto-test: true
+
+read: cool_id.gemspec
