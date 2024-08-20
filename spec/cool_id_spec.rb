@@ -253,7 +253,7 @@ RSpec.describe CoolId do
         end
         UnconfiguredModel.new
       }.to raise_error(CoolId::CoolIdError, <<~ERROR.strip)
-        CoolId not configured for UnconfiguredModel. Use 'cool_id' to configure or 'skip_enforce_cool_id_for_descendants' to opt out.
+        CoolId not configured for UnconfiguredModel. Use 'cool_id' to configure or 'skip_enforce_cool_id' to opt out.
 
         e.g.
 
@@ -287,7 +287,7 @@ RSpec.describe CoolId do
 
       expect {
         class SkippedModel < BaseRecord
-          skip_enforce_cool_id_for_descendants
+          skip_enforce_cool_id
         end
         SkippedModel.new
       }.not_to raise_error
