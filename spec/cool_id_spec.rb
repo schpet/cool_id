@@ -252,7 +252,15 @@ RSpec.describe CoolId do
         class UnconfiguredModel < BaseRecord
         end
         UnconfiguredModel.new
-      }.to raise_error(CoolId::CoolIdError, "CoolId not configured for UnconfiguredModel. Use 'cool_id' to configure or 'skip_enforce_cool_id_for_descendants' to opt out.\n\nExample:\n\nclass UnconfiguredModel < ApplicationRecord\n  cool_id prefix: \"unc\"\nend")
+      }.to raise_error(CoolId::CoolIdError, <<~ERROR)
+        CoolId not configured for UnconfiguredModel. Use 'cool_id' to configure or 'skip_enforce_cool_id_for_descendants' to opt out.
+
+        Example:
+
+        class UnconfiguredModel < ApplicationRecord
+          cool_id prefix: "unc"
+        end
+      ERROR
     end
 
     it "does not raise an error when cool_id is configured in a subclass" do
