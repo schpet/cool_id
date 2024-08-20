@@ -255,7 +255,7 @@ RSpec.describe CoolId do
       }.to raise_error(CoolId::CoolIdError, <<~ERROR)
         CoolId not configured for UnconfiguredModel. Use 'cool_id' to configure or 'skip_enforce_cool_id_for_descendants' to opt out.
 
-        Example:
+        e.g.
 
         class UnconfiguredModel < ApplicationRecord
           cool_id prefix: "unc"

@@ -135,7 +135,7 @@ module CoolId
       def ensure_cool_id_configured
         if self.class.cool_id_setup_required && self.class.cool_id_config.nil?
           suggested_prefix = self.class.name.downcase[0..2]
-          raise CoolIdError, "CoolId not configured for #{self.class}. Use 'cool_id' to configure or 'skip_enforce_cool_id_for_descendants' to opt out.\n\nExample:\n\nclass #{self.class} < ApplicationRecord\n  cool_id prefix: \"#{suggested_prefix}\"\nend"
+          raise CoolIdError, "CoolId not configured for #{self.class}. Use 'cool_id' to configure or 'skip_enforce_cool_id_for_descendants' to opt out.\n\ne.g.\n\nclass #{self.class} < ApplicationRecord\n  cool_id prefix: \"#{suggested_prefix}\"\nend"
         end
       end
     end
