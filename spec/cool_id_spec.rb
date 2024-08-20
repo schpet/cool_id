@@ -252,7 +252,7 @@ RSpec.describe CoolId do
         class UnconfiguredModel < BaseRecord
         end
         UnconfiguredModel.new
-      }.to raise_error(CoolId::CoolIdError, <<~ERROR)
+      }.to raise_error(CoolId::CoolIdError, <<~ERROR.strip)
         CoolId not configured for UnconfiguredModel. Use 'cool_id' to configure or 'skip_enforce_cool_id_for_descendants' to opt out.
 
         e.g.
