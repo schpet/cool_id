@@ -25,31 +25,56 @@ RSpec.describe CoolId do
 
   describe ".generate_id" do
     it "generates an ID with default parameters" do
-      config = CoolId::Config.new(prefix: "X")
+      mock_model = Class.new do
+        def self.exists?(id:)
+          false
+        end
+      end
+      config = CoolId::Config.new(prefix: "X", model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^X_[0-9a-z]{12}$/)
     end
 
     it "generates an ID with an empty prefix" do
-      config = CoolId::Config.new(prefix: "X")
+      mock_model = Class.new do
+        def self.exists?(id:)
+          false
+        end
+      end
+      config = CoolId::Config.new(prefix: "X", model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^X_[0-9a-z]{12}$/)
     end
 
     it "generates an ID with custom prefix and length" do
-      config = CoolId::Config.new(prefix: "test", length: 10)
+      mock_model = Class.new do
+        def self.exists?(id:)
+          false
+        end
+      end
+      config = CoolId::Config.new(prefix: "test", length: 10, model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^test_[0-9a-z]{10}$/)
     end
 
     it "generates an ID without prefix when prefix is empty" do
-      config = CoolId::Config.new(prefix: "X", length: 15)
+      mock_model = Class.new do
+        def self.exists?(id:)
+          false
+        end
+      end
+      config = CoolId::Config.new(prefix: "X", length: 15, model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^X_[0-9a-z]{15}$/)
     end
 
     it "generates an ID with custom alphabet" do
-      config = CoolId::Config.new(prefix: "X", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 10)
+      mock_model = Class.new do
+        def self.exists?(id:)
+          false
+        end
+      end
+      config = CoolId::Config.new(prefix: "X", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 10, model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^X_[A-Z]{10}$/)
     end
