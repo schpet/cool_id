@@ -217,8 +217,9 @@ RSpec.describe CoolId do
 
     it "raises an error when the alphabet includes the separator" do
       CoolId.separator = "-"
+      mock_model = Class.new
       expect {
-        CoolId::Config.new(prefix: "test", alphabet: "ABC-DEF")
+        CoolId::Config.new(prefix: "test", alphabet: "ABC-DEF", model_class: mock_model)
       }.to raise_error(ArgumentError, "Alphabet cannot include the separator '-'")
       CoolId.reset_configuration
     end
