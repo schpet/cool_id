@@ -81,21 +81,36 @@ RSpec.describe CoolId do
 
     it "uses the globally configured separator" do
       CoolId.configure { |config| config.separator = "-" }
-      config = CoolId::Config.new(prefix: "test", length: 10)
+      mock_model = Class.new do
+        def self.exists?(id:)
+          false
+        end
+      end
+      config = CoolId::Config.new(prefix: "test", length: 10, model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^test-[0-9a-z]{10}$/)
     end
 
     it "uses the globally configured length" do
       CoolId.configure { |config| config.length = 8 }
-      config = CoolId::Config.new(prefix: "test")
+      mock_model = Class.new do
+        def self.exists?(id:)
+          false
+        end
+      end
+      config = CoolId::Config.new(prefix: "test", model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^test_[0-9a-z]{8}$/)
     end
 
     it "uses the config length over the global length" do
       CoolId.configure { |config| config.length = 8 }
-      config = CoolId::Config.new(prefix: "test", length: 6)
+      mock_model = Class.new do
+        def self.exists?(id:)
+          false
+        end
+      end
+      config = CoolId::Config.new(prefix: "test", length: 6, model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^test_[0-9a-z]{6}$/)
     end
