@@ -187,7 +187,7 @@ RSpec.describe CoolId do
 
       expect {
         LimitedRetryModel.create(name: "Test")
-      }.to raise_error(RuntimeError, "Failed to generate a unique ID after 5 attempts")
+      }.to raise_error(CoolId::MaxRetriesExceededError, "Failed to generate a unique ID after 5 attempts")
     end
 
     it "raises an error when trying to set an empty prefix" do

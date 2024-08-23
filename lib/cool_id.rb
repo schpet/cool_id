@@ -6,6 +6,7 @@ require "active_support/concern"
 
 module CoolId
   class NotConfiguredError < StandardError; end
+  class MaxRetriesExceededError < StandardError; end
 
   # defaults based on https://planetscale.com/blog/why-we-chose-nanoids-for-planetscales-api
   DEFAULT_SEPARATOR = "_"
@@ -47,7 +48,9 @@ module CoolId
         end
 
         retries += 1
-        raise "Failed to generate a unique ID after #{max_retries} attempts" if retries >= max_retries
+        if retries >= max_retries
+          raise MaxRetriesExceededError, "Failed to generate a unique ID after #{max_retries} attempts"
+        end
       end
     end
   end
