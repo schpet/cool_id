@@ -80,7 +80,7 @@ module CoolId
   class Config
     attr_reader :prefix, :length, :alphabet, :max_retries, :model_class
 
-    def initialize(prefix:, length: nil, alphabet: nil, max_retries: nil, model_class:)
+    def initialize(prefix:, model_class:, length: nil, alphabet: nil, max_retries: nil)
       @length = length
       @prefix = validate_prefix(prefix)
       @alphabet = validate_alphabet(alphabet)

@@ -137,7 +137,7 @@ RSpec.describe CoolId do
 
     it "respects the max_retries setting" do
       class LimitedRetryModel < ActiveRecord::Base
-        self.table_name = 'users'
+        self.table_name = "users"
         include CoolId::Model
         cool_id prefix: "lim", max_retries: 5
       end
