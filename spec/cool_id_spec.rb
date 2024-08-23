@@ -11,7 +11,7 @@ end
 
 class Customer < ActiveRecord::Base
   include CoolId::Model
-  cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8
+  cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8, max_retries: 500
 end
 
 RSpec.describe CoolId do
@@ -80,6 +80,7 @@ RSpec.describe CoolId do
         config.separator = "-"
         config.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         config.length = 8
+        config.max_retries = 500
       end
 
       CoolId.reset_configuration
@@ -87,6 +88,7 @@ RSpec.describe CoolId do
       expect(CoolId.separator).to eq(CoolId::DEFAULT_SEPARATOR)
       expect(CoolId.alphabet).to eq(CoolId::DEFAULT_ALPHABET)
       expect(CoolId.length).to eq(CoolId::DEFAULT_LENGTH)
+      expect(CoolId.max_retries).to eq(CoolId::DEFAULT_MAX_RETRIES)
     end
   end
 
@@ -131,6 +133,21 @@ RSpec.describe CoolId do
       customer = Customer.create(name: "Alice")
       expect(customer.id).to match(/^cus-[A-Z]{8}$/)
       CoolId.reset_configuration
+    end
+
+    it "respects the max_retries setting" do
+      class LimitedRetryModel < ActiveRecord::Base
+        self.table_name = 'users'
+        include CoolId::Model
+        cool_id prefix: "lim", max_retries: 5
+      end
+
+      allow(Nanoid).to receive(:generate).and_return("existing_id")
+      allow(LimitedRetryModel).to receive(:exists?).and_return(true)
+
+      expect {
+        LimitedRetryModel.create(name: "Test")
+      }.to raise_error(RuntimeError, "Failed to generate a unique ID after 5 attempts")
     end
 
     it "raises an error when trying to set an empty prefix" do
