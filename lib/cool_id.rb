@@ -6,6 +6,7 @@ require "active_support/concern"
 
 module CoolId
   class NotConfiguredError < StandardError; end
+
   class MaxRetriesExceededError < StandardError; end
 
   # defaults based on https://planetscale.com/blog/why-we-chose-nanoids-for-planetscales-api
