@@ -40,9 +40,11 @@ module CoolId
 
       retries = 0
       loop do
-        id = Nanoid.generate(size: length, alphabet: alphabet)
-        full_id = "#{config.prefix}#{separator}#{id}"
-        return full_id unless config.model_class.exists?(id: full_id)
+        nano_id = Nanoid.generate(size: length, alphabet: alphabet)
+        full_id = "#{config.prefix}#{separator}#{nano_id}"
+        if !config.model_class.exists?(id: full_id)
+          return full_id
+        end
 
         retries += 1
         raise "Failed to generate a unique ID after #{max_retries} attempts" if retries >= max_retries
