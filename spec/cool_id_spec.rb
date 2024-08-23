@@ -11,7 +11,7 @@ end
 
 class Customer < ActiveRecord::Base
   include CoolId::Model
-  cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8
+  cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8, max_retries: 500
 end
 
 RSpec.describe CoolId do
@@ -24,53 +24,61 @@ RSpec.describe CoolId do
   end
 
   describe ".generate_id" do
+    let(:mock_model) do
+      Class.new do
+        def self.exists?(id:)
+          false
+        end
+      end
+    end
+
     it "generates an ID with default parameters" do
-      config = CoolId::Config.new(prefix: "X")
+      config = CoolId::Config.new(prefix: "X", model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^X_[0-9a-z]{12}$/)
     end
 
     it "generates an ID with an empty prefix" do
-      config = CoolId::Config.new(prefix: "X")
+      config = CoolId::Config.new(prefix: "X", model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^X_[0-9a-z]{12}$/)
     end
 
     it "generates an ID with custom prefix and length" do
-      config = CoolId::Config.new(prefix: "test", length: 10)
+      config = CoolId::Config.new(prefix: "test", length: 10, model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^test_[0-9a-z]{10}$/)
     end
 
     it "generates an ID without prefix when prefix is empty" do
-      config = CoolId::Config.new(prefix: "X", length: 15)
+      config = CoolId::Config.new(prefix: "X", length: 15, model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^X_[0-9a-z]{15}$/)
     end
 
     it "generates an ID with custom alphabet" do
-      config = CoolId::Config.new(prefix: "X", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 10)
+      config = CoolId::Config.new(prefix: "X", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 10, model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^X_[A-Z]{10}$/)
     end
 
     it "uses the globally configured separator" do
       CoolId.configure { |config| config.separator = "-" }
-      config = CoolId::Config.new(prefix: "test", length: 10)
+      config = CoolId::Config.new(prefix: "test", length: 10, model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^test-[0-9a-z]{10}$/)
     end
 
     it "uses the globally configured length" do
       CoolId.configure { |config| config.length = 8 }
-      config = CoolId::Config.new(prefix: "test")
+      config = CoolId::Config.new(prefix: "test", model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^test_[0-9a-z]{8}$/)
     end
 
     it "uses the config length over the global length" do
       CoolId.configure { |config| config.length = 8 }
-      config = CoolId::Config.new(prefix: "test", length: 6)
+      config = CoolId::Config.new(prefix: "test", length: 6, model_class: mock_model)
       id = CoolId.generate_id(config)
       expect(id).to match(/^test_[0-9a-z]{6}$/)
     end
@@ -80,6 +88,7 @@ RSpec.describe CoolId do
         config.separator = "-"
         config.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         config.length = 8
+        config.max_retries = 500
       end
 
       CoolId.reset_configuration
@@ -87,6 +96,7 @@ RSpec.describe CoolId do
       expect(CoolId.separator).to eq(CoolId::DEFAULT_SEPARATOR)
       expect(CoolId.alphabet).to eq(CoolId::DEFAULT_ALPHABET)
       expect(CoolId.length).to eq(CoolId::DEFAULT_LENGTH)
+      expect(CoolId.max_retries).to eq(CoolId::DEFAULT_MAX_RETRIES)
     end
   end
 
@@ -133,6 +143,21 @@ RSpec.describe CoolId do
       CoolId.reset_configuration
     end
 
+    it "respects the max_retries setting" do
+      class LimitedRetryModel < ActiveRecord::Base
+        self.table_name = "users"
+        include CoolId::Model
+        cool_id prefix: "lim", max_retries: 5
+      end
+
+      allow(Nanoid).to receive(:generate).and_return("existing_id")
+      allow(LimitedRetryModel).to receive(:exists?).and_return(true)
+
+      expect {
+        LimitedRetryModel.create(name: "Test")
+      }.to raise_error(CoolId::MaxRetriesExceededError, "Failed to generate a unique ID after 5 attempts")
+    end
+
     it "raises an error when trying to set an empty prefix" do
       expect {
         Class.new(ActiveRecord::Base) do
@@ -160,8 +185,9 @@ RSpec.describe CoolId do
 
     it "raises an error when the alphabet includes the separator" do
       CoolId.separator = "-"
+      mock_model = Class.new
       expect {
-        CoolId::Config.new(prefix: "test", alphabet: "ABC-DEF")
+        CoolId::Config.new(prefix: "test", alphabet: "ABC-DEF", model_class: mock_model)
       }.to raise_error(ArgumentError, "Alphabet cannot include the separator '-'")
       CoolId.reset_configuration
     end

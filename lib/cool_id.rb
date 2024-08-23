@@ -7,15 +7,18 @@ require "active_support/concern"
 module CoolId
   class NotConfiguredError < StandardError; end
 
+  class MaxRetriesExceededError < StandardError; end
+
   # defaults based on https://planetscale.com/blog/why-we-chose-nanoids-for-planetscales-api
   DEFAULT_SEPARATOR = "_"
   DEFAULT_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz"
   DEFAULT_LENGTH = 12
+  DEFAULT_MAX_RETRIES = 1000
 
   Id = Struct.new(:key, :prefix, :id, :model_class)
 
   class << self
-    attr_accessor :separator, :alphabet, :length
+    attr_accessor :separator, :alphabet, :length, :max_retries
 
     def configure
       yield self
@@ -25,6 +28,7 @@ module CoolId
       self.separator = DEFAULT_SEPARATOR
       self.alphabet = DEFAULT_ALPHABET
       self.length = DEFAULT_LENGTH
+      self.max_retries = DEFAULT_MAX_RETRIES
     end
 
     def registry
@@ -34,15 +38,28 @@ module CoolId
     def generate_id(config)
       alphabet = config.alphabet || @alphabet
       length = config.length || @length
-      id = Nanoid.generate(size: length, alphabet: alphabet)
+      max_retries = config.max_retries || @max_retries
 
-      "#{config.prefix}#{separator}#{id}"
+      retries = 0
+      loop do
+        nano_id = Nanoid.generate(size: length, alphabet: alphabet)
+        full_id = "#{config.prefix}#{separator}#{nano_id}"
+        if !config.model_class.exists?(id: full_id)
+          return full_id
+        end
+
+        retries += 1
+        if retries >= max_retries
+          raise MaxRetriesExceededError, "Failed to generate a unique ID after #{max_retries} attempts"
+        end
+      end
     end
   end
 
   self.separator = DEFAULT_SEPARATOR
   self.alphabet = DEFAULT_ALPHABET
   self.length = DEFAULT_LENGTH
+  self.max_retries = DEFAULT_MAX_RETRIES
 
   class Registry
     def initialize
@@ -67,12 +84,14 @@ module CoolId
   end
 
   class Config
-    attr_reader :prefix, :length, :alphabet
+    attr_reader :prefix, :length, :alphabet, :max_retries, :model_class
 
-    def initialize(prefix:, length: nil, alphabet: nil)
+    def initialize(prefix:, model_class:, length: nil, alphabet: nil, max_retries: nil)
       @length = length
       @prefix = validate_prefix(prefix)
       @alphabet = validate_alphabet(alphabet)
+      @max_retries = max_retries
+      @model_class = model_class
     end
 
     private
@@ -98,7 +117,7 @@ module CoolId
       attr_accessor :cool_id_setup_required
 
       def cool_id(options)
-        @cool_id_config = Config.new(**options)
+        @cool_id_config = Config.new(**options, model_class: self)
         CoolId.registry.register(options[:prefix], self)
       end
 
