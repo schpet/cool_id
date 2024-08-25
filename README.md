@@ -53,7 +53,7 @@ product.public_id  # => "prd_vktd1b5v84lr"
 CoolId.locate("prd_vktd1b5v84lr")  # => #<Product id: 1, public_id: "prd_vktd1b5v84lr", name: "Cool Product">
 ```
 
-This approach allows you to keep your primary key as an auto-incrementing integer while still benefiting from CoolId's functionality. It's particularly useful when you want to expose a public identifier that's separate from your internal primary key.
+this approach allows you to keep your primary key as an auto-incrementing integer while still benefiting from CoolId's functionality. It's particularly useful when you want to expose a public identifier that's separate from your internal primary key.
 
 it takes parameters to change the alphabet or length
 
