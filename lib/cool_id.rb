@@ -18,6 +18,9 @@ module CoolId
   Id = Struct.new(:key, :prefix, :id, :model_class, :id_field)
 
   class << self
+    def resolve_id_field(model_class)
+      model_class.cool_id_config&.id_field || CoolId.id_field || model_class.primary_key
+    end
     attr_accessor :separator, :alphabet, :length, :max_retries, :id_field
 
     def configure
@@ -75,7 +78,7 @@ module CoolId
       parsed = parse(id)
       return nil unless parsed
 
-      id_field = parsed.model_class.cool_id_config&.id_field || CoolId.id_field || parsed.model_class.primary_key
+      id_field = CoolId.resolve_id_field(parsed.model_class)
       parsed.model_class.find_by(id_field => id)
     end
 
@@ -83,7 +86,7 @@ module CoolId
       prefix, key = id.split(CoolId.separator, 2)
       model_class = @prefix_map[prefix]
       return nil unless model_class
-      id_field = model_class.cool_id_config&.id_field || CoolId.id_field || model_class.primary_key
+      id_field = CoolId.resolve_id_field(model_class)
       Id.new(key, prefix, id, model_class, id_field)
     end
   end
@@ -154,7 +157,7 @@ module CoolId
       private
 
       def set_cool_id
-        id_field = self.class.cool_id_config&.id_field || CoolId.id_field || self.class.primary_key
+        id_field = CoolId.resolve_id_field(self.class)
         self[id_field] = self.class.generate_cool_id if self[id_field].blank?
       end
 
