@@ -93,6 +93,7 @@ module CoolId
       @alphabet = validate_alphabet(alphabet)
       @max_retries = max_retries
       @model_class = model_class
+      @id_field = id_field
     end
 
     private
@@ -118,7 +119,7 @@ module CoolId
       attr_accessor :cool_id_setup_required
 
       def cool_id(options)
-        @cool_id_config = Config.new(**options, model_class: self, id_field: options[:id_field])
+        @cool_id_config = Config.new(**options, model_class: self)
         CoolId.registry.register(options[:prefix], self)
       end
 

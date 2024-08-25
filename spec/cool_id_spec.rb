@@ -233,7 +233,8 @@ RSpec.describe CoolId do
         end
       end
 
-      product = Product.create(name: "Cool Product")
+      product = Product.create!(name: "Cool Product")
+      expect(product.id).to be_a(Integer)
       expect(product.public_id).to match(/^prd_[0-9a-z]{12}$/)
       expect(product.id).not_to match(/^prd_[0-9a-z]{12}$/)
 
