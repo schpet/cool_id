@@ -35,8 +35,25 @@ and generate ids without creating a record
 # generate an id, e.g. for batch inserts or upserts
 User.generate_cool_id
 # => "usr_vktd1b5v84lr"
-
 ```
+
+you can use cool_id with a separate field, keeping the default primary key:
+
+```ruby
+class Product < ActiveRecord::Base
+  include CoolId::Model
+  cool_id prefix: "prd", id_field: :public_id
+end
+
+product = Product.create!(name: "Cool Product")
+product.id  # => 1 (or another integer)
+product.public_id  # => "prd_vktd1b5v84lr"
+
+# You can still use CoolId.locate with the public_id
+CoolId.locate("prd_vktd1b5v84lr")  # => #<Product id: 1, public_id: "prd_vktd1b5v84lr", name: "Cool Product">
+```
+
+This approach allows you to keep your primary key as an auto-incrementing integer while still benefiting from CoolId's functionality. It's particularly useful when you want to expose a public identifier that's separate from your internal primary key.
 
 it takes parameters to change the alphabet or length
 
