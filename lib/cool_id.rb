@@ -15,10 +15,10 @@ module CoolId
   DEFAULT_LENGTH = 12
   DEFAULT_MAX_RETRIES = 1000
 
-  Id = Struct.new(:key, :prefix, :id, :model_class)
+  Id = Struct.new(:key, :prefix, :id, :model_class, :id_field)
 
   class << self
-    attr_accessor :separator, :alphabet, :length, :max_retries
+    attr_accessor :separator, :alphabet, :length, :max_retries, :id_field
 
     def configure
       yield self
@@ -29,6 +29,7 @@ module CoolId
       self.alphabet = DEFAULT_ALPHABET
       self.length = DEFAULT_LENGTH
       self.max_retries = DEFAULT_MAX_RETRIES
+      self.id_field = nil
     end
 
     def registry
@@ -54,6 +55,10 @@ module CoolId
         end
       end
     end
+
+    def resolve_cool_id_field(model_class)
+      model_class.cool_id_config&.id_field || CoolId.id_field || model_class.primary_key
+    end
   end
 
   self.separator = DEFAULT_SEPARATOR
@@ -72,26 +77,31 @@ module CoolId
 
     def locate(id)
       parsed = parse(id)
-      parsed&.model_class&.find_by(id: id)
+      return nil unless parsed
+
+      id_field = CoolId.resolve_cool_id_field(parsed.model_class)
+      parsed.model_class.find_by(id_field => id)
     end
 
     def parse(id)
       prefix, key = id.split(CoolId.separator, 2)
       model_class = @prefix_map[prefix]
       return nil unless model_class
-      Id.new(key, prefix, id, model_class)
+      id_field = CoolId.resolve_cool_id_field(model_class)
+      Id.new(key, prefix, id, model_class, id_field)
     end
   end
 
   class Config
-    attr_reader :prefix, :length, :alphabet, :max_retries, :model_class
+    attr_reader :prefix, :length, :alphabet, :max_retries, :model_class, :id_field
 
-    def initialize(prefix:, model_class:, length: nil, alphabet: nil, max_retries: nil)
+    def initialize(prefix:, model_class:, length: nil, alphabet: nil, max_retries: nil, id_field: nil)
       @length = length
       @prefix = validate_prefix(prefix)
       @alphabet = validate_alphabet(alphabet)
       @max_retries = max_retries
       @model_class = model_class
+      @id_field = id_field
     end
 
     private
@@ -148,7 +158,8 @@ module CoolId
       private
 
       def set_cool_id
-        self.id = self.class.generate_cool_id if id.blank?
+        id_field = CoolId.resolve_cool_id_field(self.class)
+        self[id_field] = self.class.generate_cool_id if self[id_field].blank?
       end
 
       def ensure_cool_id_configured

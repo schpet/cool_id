@@ -4,16 +4,6 @@
 
 require "active_record"
 
-class User < ActiveRecord::Base
-  include CoolId::Model
-  cool_id prefix: "usr"
-end
-
-class Customer < ActiveRecord::Base
-  include CoolId::Model
-  cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8, max_retries: 500
-end
-
 RSpec.describe CoolId do
   before(:each) do
     CoolId.reset_configuration
@@ -101,6 +91,16 @@ RSpec.describe CoolId do
   end
 
   describe CoolId::Model do
+    class User < ActiveRecord::Base
+      include CoolId::Model
+      cool_id prefix: "usr"
+    end
+
+    class Customer < ActiveRecord::Base
+      include CoolId::Model
+      cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8, max_retries: 500
+    end
+
     before(:all) do
       ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
     end
@@ -218,6 +218,30 @@ RSpec.describe CoolId do
 
       expect(CoolId.locate(user.id)).to eq(user)
       expect(CoolId.locate(customer.id)).to eq(customer)
+    end
+
+    it "generates a cool_id for a custom id field" do
+      class Product < ActiveRecord::Base
+        include CoolId::Model
+        cool_id prefix: "prd", id_field: :public_id
+      end
+
+      ActiveRecord::Schema.define do
+        create_table :products do |t|
+          t.string :public_id
+          t.string :name
+        end
+      end
+
+      product = Product.create!(name: "Cool Product")
+      expect(product.id).to be_a(Integer)
+      expect(product.public_id).to match(/^prd_[0-9a-z]{12}$/)
+      expect(product.id).not_to match(/^prd_[0-9a-z]{12}$/)
+
+      located_product = CoolId.locate(product.public_id)
+      expect(located_product).to eq(product)
+
+      ActiveRecord::Base.connection.drop_table :products
     end
   end
 
