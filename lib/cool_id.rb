@@ -18,7 +18,7 @@ module CoolId
   Id = Struct.new(:key, :prefix, :id, :model_class)
 
   class << self
-    attr_accessor :separator, :alphabet, :length, :max_retries
+    attr_accessor :separator, :alphabet, :length, :max_retries, :id_field
 
     def configure
       yield self
@@ -29,6 +29,7 @@ module CoolId
       self.alphabet = DEFAULT_ALPHABET
       self.length = DEFAULT_LENGTH
       self.max_retries = DEFAULT_MAX_RETRIES
+      self.id_field = nil
     end
 
     def registry
@@ -84,9 +85,9 @@ module CoolId
   end
 
   class Config
-    attr_reader :prefix, :length, :alphabet, :max_retries, :model_class
+    attr_reader :prefix, :length, :alphabet, :max_retries, :model_class, :id_field
 
-    def initialize(prefix:, model_class:, length: nil, alphabet: nil, max_retries: nil)
+    def initialize(prefix:, model_class:, length: nil, alphabet: nil, max_retries: nil, id_field: nil)
       @length = length
       @prefix = validate_prefix(prefix)
       @alphabet = validate_alphabet(alphabet)
@@ -117,7 +118,7 @@ module CoolId
       attr_accessor :cool_id_setup_required
 
       def cool_id(options)
-        @cool_id_config = Config.new(**options, model_class: self)
+        @cool_id_config = Config.new(**options, model_class: self, id_field: options[:id_field])
         CoolId.registry.register(options[:prefix], self)
       end
 
@@ -148,7 +149,8 @@ module CoolId
       private
 
       def set_cool_id
-        self.id = self.class.generate_cool_id if id.blank?
+        id_field = self.class.cool_id_config&.id_field || CoolId.id_field || self.class.primary_key
+        self[id_field] = self.class.generate_cool_id if self[id_field].blank?
       end
 
       def ensure_cool_id_configured
