@@ -15,7 +15,7 @@ module CoolId
   DEFAULT_LENGTH = 12
   DEFAULT_MAX_RETRIES = 1000
 
-  Id = Struct.new(:key, :prefix, :id, :model_class)
+  Id = Struct.new(:key, :prefix, :id, :model_class, :id_field)
 
   class << self
     attr_accessor :separator, :alphabet, :length, :max_retries, :id_field
@@ -73,14 +73,18 @@ module CoolId
 
     def locate(id)
       parsed = parse(id)
-      parsed&.model_class&.find_by(id: id)
+      return nil unless parsed
+
+      id_field = parsed.model_class.cool_id_config&.id_field || CoolId.id_field || parsed.model_class.primary_key
+      parsed.model_class.find_by(id_field => id)
     end
 
     def parse(id)
       prefix, key = id.split(CoolId.separator, 2)
       model_class = @prefix_map[prefix]
       return nil unless model_class
-      Id.new(key, prefix, id, model_class)
+      id_field = model_class.cool_id_config&.id_field || CoolId.id_field || model_class.primary_key
+      Id.new(key, prefix, id, model_class, id_field)
     end
   end
 
