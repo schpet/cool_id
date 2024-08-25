@@ -18,9 +18,6 @@ module CoolId
   Id = Struct.new(:key, :prefix, :id, :model_class, :id_field)
 
   class << self
-    def resolve_id_field(model_class)
-      model_class.cool_id_config&.id_field || CoolId.id_field || model_class.primary_key
-    end
     attr_accessor :separator, :alphabet, :length, :max_retries, :id_field
 
     def configure
@@ -57,6 +54,10 @@ module CoolId
           raise MaxRetriesExceededError, "Failed to generate a unique ID after #{max_retries} attempts"
         end
       end
+    end
+
+    def resolve_id_field(model_class)
+      model_class.cool_id_config&.id_field || CoolId.id_field || model_class.primary_key
     end
   end
 
