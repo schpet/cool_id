@@ -4,16 +4,6 @@
 
 require "active_record"
 
-class User < ActiveRecord::Base
-  include CoolId::Model
-  cool_id prefix: "usr"
-end
-
-class Customer < ActiveRecord::Base
-  include CoolId::Model
-  cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8, max_retries: 500
-end
-
 RSpec.describe CoolId do
   before(:each) do
     CoolId.reset_configuration
@@ -101,6 +91,16 @@ RSpec.describe CoolId do
   end
 
   describe CoolId::Model do
+    class User < ActiveRecord::Base
+      include CoolId::Model
+      cool_id prefix: "usr"
+    end
+
+    class Customer < ActiveRecord::Base
+      include CoolId::Model
+      cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8, max_retries: 500
+    end
+
     before(:all) do
       ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
     end
