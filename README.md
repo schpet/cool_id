@@ -1,6 +1,6 @@
 # cool id
 
-gem for rails apps to generates string ids with a prefix, followed by a [nanoid](https://zelark.github.io/nano-id-cc/). similar to the ids you see in stripe's api. also able to lookup any record by id, similar to rails' globalid.
+gem for rails apps to generates string ids with a prefix, followed by a [nanoid](https://zelark.github.io/nano-id-cc/). similar to the ids you see in stripe's api. also able to lookup any record by id, similar to rails' globalid. there's an [introductory blog post](https://schpet.com/note/cool-id) explaining why i made this.
 
 ```ruby
 class User < ActiveRecord::Base
@@ -17,16 +17,6 @@ lookup any record by its id
 ```ruby
 CoolId.locate("usr_vktd1b5v84lr")
 # => #<User id: "usr_vktd1b5v84lr", name: "John Doe">
-```
-
-and parse ids
-
-```ruby
-parsed = CoolId.parse("usr_vktd1b5v84lr")
-# => #<struct CoolId::Id key="vktd1b5v84lr", prefix="usr", id="usr_vktd1b5v84lr", model_class=User>
-
-parsed.model_class
-# => User
 ```
 
 and generate ids without creating a record
@@ -76,6 +66,17 @@ CoolId.configure do |config|
   config.length = 8
 end
 ```
+
+parsing ids
+
+```ruby
+parsed = CoolId.parse("usr_vktd1b5v84lr")
+# => #<struct CoolId::Id key="vktd1b5v84lr", prefix="usr", id="usr_vktd1b5v84lr", model_class=User>
+
+parsed.model_class
+# => User
+```
+
 
 ## installation
 
