@@ -26,9 +26,7 @@ jobs:
     - name: Run the default task
       run: bundle exec rake
     - name: Generate HTML documentation
-      run: |
-        gem install yard
-        yard doc --output-dir ./docs
+      run: bundle exec yard doc --output-dir ./docs
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v2
       with:
