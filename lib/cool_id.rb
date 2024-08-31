@@ -143,8 +143,25 @@ module CoolId
 
   # Configuration class for CoolId generation.
   class Config
-    attr_reader :prefix, :length, :alphabet, :max_retries, :model_class, :id_field
+    # @return [String] The prefix for generated IDs.
+    attr_reader :prefix
 
+    # @return [Integer, nil] The length of the generated ID (excluding prefix and separator).
+    attr_reader :length
+
+    # @return [String, nil] The alphabet to use for generating IDs.
+    attr_reader :alphabet
+
+    # @return [Integer, nil] The maximum number of retries when generating a unique ID.
+    attr_reader :max_retries
+
+    # @return [Class] The ActiveRecord model class associated with this configuration.
+    attr_reader :model_class
+
+    # @return [Symbol, nil] The field to use for storing the ID in the model.
+    attr_reader :id_field
+
+    # Initializes a new Config instance.
     # @param prefix [String] The prefix for generated IDs.
     # @param model_class [Class] The ActiveRecord model class.
     # @param length [Integer, nil] The length of the generated ID (excluding prefix and separator).
@@ -152,8 +169,8 @@ module CoolId
     # @param max_retries [Integer, nil] The maximum number of retries when generating a unique ID.
     # @param id_field [Symbol, nil] The field to use for storing the ID in the model.
     def initialize(prefix:, model_class:, length: nil, alphabet: nil, max_retries: nil, id_field: nil)
-      @length = length
       @prefix = validate_prefix(prefix)
+      @length = length
       @alphabet = validate_alphabet(alphabet)
       @max_retries = max_retries
       @model_class = model_class
