@@ -34,7 +34,7 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.3.4'
+        ruby-version: file:.ruby-version
         bundler-cache: true
     - name: Generate HTML documentation
       run: bundle exec yard doc --output-dir ./docs
