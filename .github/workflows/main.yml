@@ -25,6 +25,17 @@ jobs:
         bundler-cache: true
     - name: Run the default task
       run: bundle exec rake
+
+  docs:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3.4'
+        bundler-cache: true
     - name: Generate HTML documentation
       run: bundle exec yard doc --output-dir ./docs
     - name: Upload artifact
@@ -33,7 +44,7 @@ jobs:
         path: ./docs
 
   deploy:
-    needs: build
+    needs: docs
     permissions:
       pages: write
       id-token: write
