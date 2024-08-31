@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = "CoolId generates primary keys using prefixed nanoids for ActiveRecord models, providing unique and readable identifiers."
   spec.homepage = "https://github.com/schpet/cool_id"
   spec.license = "ISC"
-  spec.required_ruby_version = ">= 3.0.0"
+  spec.required_ruby_version = ">= 3.1.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/schpet/cool_id"
