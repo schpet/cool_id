@@ -62,7 +62,7 @@ module CoolId
       self.id_field = nil
     end
 
-    # @return [Registry] The registry for managing prefixes and model classes.
+    # @return [Registry] The default registry that keeps track of which prefixes are associated with which model classes.
     def registry
       @prefix_map ||= Registry.new
     end
@@ -91,7 +91,7 @@ module CoolId
       end
     end
 
-    # Resolves the field to use for storing the CoolId in a model.
+    # Resolves the field (column) to use for storing the CoolId in a model.
     # @param model_class [Class] The ActiveRecord model class.
     # @return [Symbol] The field to use for storing the CoolId.
     def resolve_cool_id_field(model_class)
@@ -143,12 +143,6 @@ module CoolId
 
   # Configuration class for CoolId generation.
   class Config
-    # @return [String] The prefix for generated IDs.
-    # @return [Integer, nil] The length of the generated ID (excluding prefix and separator).
-    # @return [String, nil] The alphabet to use for generating IDs.
-    # @return [Integer, nil] The maximum number of retries when generating a unique ID.
-    # @return [Class] The ActiveRecord model class associated with this configuration.
-    # @return [Symbol, nil] The field to use for storing the ID in the model.
     attr_reader :prefix, :length, :alphabet, :max_retries, :model_class, :id_field
 
     # @param prefix [String] The prefix for generated IDs.
