@@ -1,10 +1,9 @@
-name: Ruby
+name: Ruby and Pages
 
 on:
   push:
     branches:
       - main
-
   pull_request:
 
 jobs:
@@ -25,3 +24,25 @@ jobs:
         bundler-cache: true
     - name: Run the default task
       run: bundle exec rake
+    - name: Generate HTML documentation
+      run: |
+        gem install yard
+        yard doc --output-dir ./docs
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: ./docs
+
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
