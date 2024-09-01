@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "https://github.com/schpet/cool_id/blob/main/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
-  spec.files = Dir.glob(%w[lib/**/*.rb *.md LICENSE])
+  spec.files = Dir.glob(%w[lib/**/*.rb *.md LICENSE .yardopts])
   spec.require_paths = ["lib"]
 
   spec.add_dependency "nanoid", "~> 2.0"
@@ -30,5 +30,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "standard", "~> 1.3"
   spec.add_development_dependency "yard", "~> 0.9.28"
+  spec.add_development_dependency "webrick"
   spec.add_development_dependency "sqlite3", "~> 1.4"
 end

@@ -1,0 +1,5 @@
+--no-private
+--markup=markdown
+--readme=README.md
+--title='cool_id api documentation'
+'lib/**/*.rb' - '*.md' LICENSE
