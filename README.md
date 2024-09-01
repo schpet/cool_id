@@ -90,6 +90,13 @@ bundle add cool_id
 gem "cool_id"
 ```
 
+don't want another dependency? copy it into your project:
+
+```
+mkdir -p app/lib
+curl https://raw.githubusercontent.com/schpet/cool_id/main/lib/cool_id.rb -o app/lib/cool_id.rb
+```
+
 ### adding cool_id to a single model
 
 use string ids when creating a table
