@@ -2,6 +2,10 @@
 
 gem for rails apps to generates string ids with a prefix, followed by a [nanoid](https://zelark.github.io/nano-id-cc/). similar to the ids you see in stripe's api. also able to lookup any record by id, similar to rails' globalid. there's an [introductory blog post](https://schpet.com/note/cool-id) explaining why i made this.
 
+## usage
+
+### basic id generation
+
 ```ruby
 class User < ActiveRecord::Base
   include CoolId::Model
@@ -12,38 +16,33 @@ User.create!(name: "...").id
 # => "usr_vktd1b5v84lr"
 ```
 
-lookup any record by its id
+### locate records
 
 ```ruby
 CoolId.locate("usr_vktd1b5v84lr")
 # => #<User id: "usr_vktd1b5v84lr", name: "John Doe">
 ```
 
-and generate ids without creating a record
+### generate ids
+
+e.g. for batch inserts or upserts
 
 ```ruby
-# generate an id, e.g. for batch inserts or upserts
 User.generate_cool_id
 # => "usr_vktd1b5v84lr"
 ```
 
-you can use cool_id with a separate field, keeping the default primary key:
+### parsing ids
 
 ```ruby
-class Product < ActiveRecord::Base
-  include CoolId::Model
-  cool_id prefix: "prd", id_field: :public_id
-end
+parsed = CoolId.parse("usr_vktd1b5v84lr")
+# => #<struct CoolId::Id key="vktd1b5v84lr", prefix="usr", id="usr_vktd1b5v84lr", model_class=User>
 
-product = Product.create!(name: "Cool Product")
-product.id  # => 1 (or another integer)
-product.public_id  # => "prd_vktd1b5v84lr"
-
-# You can still use CoolId.locate with the public_id
-CoolId.locate("prd_vktd1b5v84lr")  # => #<Product id: 1, public_id: "prd_vktd1b5v84lr", name: "Cool Product">
+parsed.model_class
+# => User
 ```
 
-this approach allows you to keep your primary key as an auto-incrementing integer while still benefiting from CoolId's functionality. it's particularly useful when you want to expose a public identifier that's separate from your internal primary key.
+### configuration options
 
 it takes parameters to change the alphabet or length
 
@@ -67,15 +66,25 @@ CoolId.configure do |config|
 end
 ```
 
-parsing ids
+#### using a different id field
+
+you can use cool_id with a separate field, keeping the default primary key:
 
 ```ruby
-parsed = CoolId.parse("usr_vktd1b5v84lr")
-# => #<struct CoolId::Id key="vktd1b5v84lr", prefix="usr", id="usr_vktd1b5v84lr", model_class=User>
+class Product < ActiveRecord::Base
+  include CoolId::Model
+  cool_id prefix: "prd", id_field: :public_id
+end
 
-parsed.model_class
-# => User
+product = Product.create!(name: "Cool Product")
+product.id  # => 1 (or a uuid or whatever primary key you like)
+product.public_id  # => "prd_vktd1b5v84lr"
+
+# locate will find this
+CoolId.locate("prd_vktd1b5v84lr")  # => #<Product id: 1, public_id: "prd_vktd1b5v84lr", ...>
 ```
+
+this approach allows you to avoid exposing your primary keys, read David Bryant Copeland's [Create public-facing unique keys alongside your primary keys](https://naildrivin5.com/blog/2024/08/26/create-public-facing-unique-keys-alongside-your-primary-keys.html) to learn why you might want to do this. it also allows you to adopt cool_id more easily in a project that already has some data.
 
 
 ## installation
@@ -90,7 +99,7 @@ bundle add cool_id
 gem "cool_id"
 ```
 
-don't want another dependency? copy it into your project:
+don't want to deal with a dependency? copy it into your project:
 
 ```
 mkdir -p app/lib
@@ -115,6 +124,8 @@ class User < ActiveRecord::Base
   cool_id prefix: "usr"
 end
 ```
+
+note: if you prefer more traditional primary keys (like bigints or uuids) you can use the `id_field` on a different column.
 
 ### using cool_id on all models
 
@@ -141,7 +152,6 @@ end
 ### graphql
 
 if you use the graphql ruby node interface, you can implement [object identification](https://graphql-ruby.org/schema/object_identification)
-
 
 ```ruby
 # app/graphql/app_schema.rb
