@@ -152,7 +152,7 @@ sample_size = ARGV[0] ? ARGV[0].to_i : 10_000
 iterations = ARGV[1] ? ARGV[1].to_i : [10_000, sample_size].min
 
 # Ensure iterations is not larger than sample size and at least 1
-iterations = [[iterations, sample_size].min, 1].max
+iterations = iterations.clamp(1, sample_size)
 
 # Main execution
 clean_up_data
