@@ -9,8 +9,6 @@ require "faker"
 ActiveRecord::Base.establish_connection(
   adapter: "postgresql",
   host: "localhost",
-  username: "your_username",
-  password: "your_password",
   database: "cool_id_benchmark"
 )
 
