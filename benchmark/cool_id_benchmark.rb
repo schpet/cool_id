@@ -2,7 +2,7 @@
 
 require "benchmark"
 require "active_record"
-require "cool_id"
+require_relative "../lib/cool_id"
 require "faker"
 
 # Configure ActiveRecord to use PostgreSQL
