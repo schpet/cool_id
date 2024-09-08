@@ -6,6 +6,10 @@ gem for rails apps to generate string ids with a prefix, followed by a [nanoid](
 
 ### basic id generation
 
+## usage
+
+### basic id generation
+
 ```ruby
 class User < ActiveRecord::Base
   include CoolId::Model

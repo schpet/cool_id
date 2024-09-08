@@ -131,6 +131,13 @@ RSpec.describe CoolId do
       expect(user.id).to match(/^usr_[0-9a-z]{12}$/)
     end
 
+    it "generates a cool_id without existence check" do
+      allow(User).to receive(:exists?).and_return(true) # Simulate all IDs exist
+      id = User.generate_cool_id(skip_existence_check: true)
+      expect(id).to match(/^usr_[0-9a-z]{12}$/)
+      expect(User).not_to have_received(:exists?)
+    end
+
     it "does not overwrite an existing id" do
       user = User.create(id: "custom-id", name: "Jane Doe")
       expect(user.id).to eq("custom-id")
