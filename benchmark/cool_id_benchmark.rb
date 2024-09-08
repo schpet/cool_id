@@ -110,7 +110,7 @@ def prepare_sample_ids(count)
     big_int: BigIntUser.pluck(:id).sample(count),
     uuid: UuidUser.pluck(:id).sample(count),
     cool_id: CoolIdUser.pluck(:id).sample(count)
-  }
+  }.transform_values { |ids| ids.compact }
 end
 
 # Benchmark queries
@@ -118,14 +118,18 @@ def run_benchmark(iterations, sample_ids)
   Benchmark.bm(20) do |x|
     [:big_int, :uuid, :cool_id].each do |id_type|
       x.report("#{id_type.to_s.capitalize} Query:") do
-        iterations.times do |i|
-          case id_type
-          when :big_int
-            BigIntUser.joins(:big_int_profile).where(id: sample_ids[id_type][i % sample_ids[id_type].size]).first
-          when :uuid
-            UuidUser.joins(:uuid_profile).where(id: sample_ids[id_type][i % sample_ids[id_type].size]).first
-          when :cool_id
-            CoolIdUser.joins(:cool_id_profile).where(id: sample_ids[id_type][i % sample_ids[id_type].size]).first
+        if sample_ids[id_type].empty?
+          puts "No sample IDs for #{id_type}. Skipping benchmark."
+        else
+          iterations.times do |i|
+            case id_type
+            when :big_int
+              BigIntUser.joins(:big_int_profile).where(id: sample_ids[id_type].sample).first
+            when :uuid
+              UuidUser.joins(:uuid_profile).where(id: sample_ids[id_type].sample).first
+            when :cool_id
+              CoolIdUser.joins(:cool_id_profile).where(id: sample_ids[id_type].sample).first
+            end
           end
         end
       end
@@ -143,10 +147,10 @@ end
 
 # Parse command-line arguments for sample data size and iterations
 sample_size = ARGV[0] ? ARGV[0].to_i : 10_000
-iterations = ARGV[1] ? ARGV[1].to_i : 10_000
+iterations = ARGV[1] ? ARGV[1].to_i : [10_000, sample_size].min
 
-# Ensure iterations is not larger than sample size
-iterations = [iterations, sample_size].min
+# Ensure iterations is not larger than sample size and at least 1
+iterations = [[iterations, sample_size].min, 1].max
 
 # Main execution
 clean_up_data
