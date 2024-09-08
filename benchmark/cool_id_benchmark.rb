@@ -104,24 +104,33 @@ def generate_sample_data(count)
   end
 end
 
+# Prepare sample IDs for benchmarking
+def prepare_sample_ids(count)
+  {
+    big_int: BigIntUser.pluck(:id).sample(count),
+    uuid: UuidUser.pluck(:id).sample(count),
+    cool_id: CoolIdUser.pluck(:id).sample(count)
+  }
+end
+
 # Benchmark queries
-def run_benchmark(iterations)
+def run_benchmark(iterations, sample_ids)
   Benchmark.bm(20) do |x|
     x.report("BigInt Query:") do
-      iterations.times do
-        BigIntUser.joins(:big_int_profile).where(id: BigIntUser.pluck(:id).sample).first
+      iterations.times do |i|
+        BigIntUser.joins(:big_int_profile).where(id: sample_ids[:big_int][i % sample_ids[:big_int].size]).first
       end
     end
 
     x.report("UUID Query:") do
-      iterations.times do
-        UuidUser.joins(:uuid_profile).where(id: UuidUser.pluck(:id).sample).first
+      iterations.times do |i|
+        UuidUser.joins(:uuid_profile).where(id: sample_ids[:uuid][i % sample_ids[:uuid].size]).first
       end
     end
 
     x.report("CoolId Query:") do
-      iterations.times do
-        CoolIdUser.joins(:cool_id_profile).where(id: CoolIdUser.pluck(:id).sample).first
+      iterations.times do |i|
+        CoolIdUser.joins(:cool_id_profile).where(id: sample_ids[:cool_id][i % sample_ids[:cool_id].size]).first
       end
     end
   end
@@ -184,8 +193,11 @@ generate_sample_data(sample_size)
 puts "Running VACUUM..."
 ActiveRecord::Base.connection.execute("VACUUM ANALYZE")
 
+puts "Preparing sample IDs for benchmarks..."
+sample_ids = prepare_sample_ids(10_000)
+
 puts "Running benchmarks..."
-run_benchmark(10_000)
+run_benchmark(10_000, sample_ids)
 
 # Clean up
 clean_up_data
