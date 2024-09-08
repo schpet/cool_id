@@ -111,12 +111,6 @@ end
 # Benchmark queries
 def run_benchmark(iterations)
   Benchmark.bm(20) do |x|
-    x.report("CoolId Query:") do
-      iterations.times do
-        CoolIdUser.joins(:cool_id_profile).where(id: CoolIdUser.pluck(:id).sample).first
-      end
-    end
-
     x.report("BigInt Query:") do
       iterations.times do
         BigIntUser.joins(:big_int_profile).where(id: BigIntUser.pluck(:id).sample).first
@@ -126,6 +120,12 @@ def run_benchmark(iterations)
     x.report("UUID Query:") do
       iterations.times do
         UuidUser.joins(:uuid_profile).where(id: UuidUser.pluck(:id).sample).first
+      end
+    end
+
+    x.report("CoolId Query:") do
+      iterations.times do
+        CoolIdUser.joins(:cool_id_profile).where(id: CoolIdUser.pluck(:id).sample).first
       end
     end
   end
