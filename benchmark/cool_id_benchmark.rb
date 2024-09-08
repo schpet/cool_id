@@ -59,16 +59,16 @@ end
 # Generate sample data
 def generate_sample_data(count)
   (count / 1000).times do
-    cool_id_users = 1000.times.map { { name: Faker::Name.name } }
+    cool_id_users = 1000.times.map { {name: Faker::Name.name} }
     cool_id_user_ids = CoolIdUser.insert_all(cool_id_users).rows.flatten
 
-    cool_id_profiles = cool_id_user_ids.map { |id| { cool_id_user_id: id, bio: Faker::Lorem.paragraph } }
+    cool_id_profiles = cool_id_user_ids.map { |id| {cool_id_user_id: id, bio: Faker::Lorem.paragraph} }
     CoolIdProfile.insert_all(cool_id_profiles)
 
-    big_int_users = 1000.times.map { { name: Faker::Name.name, public_id: BigIntUser.generate_cool_id } }
+    big_int_users = 1000.times.map { {name: Faker::Name.name, public_id: BigIntUser.generate_cool_id} }
     big_int_user_ids = BigIntUser.insert_all(big_int_users).rows.flatten
 
-    big_int_profiles = big_int_user_ids.map { |id| { big_int_user_id: id, bio: Faker::Lorem.paragraph } }
+    big_int_profiles = big_int_user_ids.map { |id| {big_int_user_id: id, bio: Faker::Lorem.paragraph} }
     BigIntProfile.insert_all(big_int_profiles)
   end
 end
