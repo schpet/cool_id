@@ -76,7 +76,7 @@ ActiveRecord::Schema.define do
   end
 end
 
-BATCH_SIZE = 1000
+BATCH_SIZE = 5000
 
 # Generate sample data
 def generate_sample_data(count)
