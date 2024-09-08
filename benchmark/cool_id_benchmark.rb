@@ -206,5 +206,10 @@ sample_ids = prepare_sample_ids(10_000)
 puts "Running benchmarks..."
 run_benchmark(iterations, sample_ids)
 
+
+sample_ids = prepare_sample_ids(10_000)
+puts "Running benchmarks again..."
+run_benchmark(iterations, sample_ids)
+
 # Clean up
 clean_up_data
