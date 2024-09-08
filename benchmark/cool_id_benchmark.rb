@@ -81,27 +81,27 @@ def generate_sample_data(count)
     puts "Inserting batch #{batch + 1} of #{total_batches}..."
 
     cool_id_users = 1000.times.map { {id: CoolIdUser.generate_cool_id, name: Faker::Name.name} }
-    cool_id_user_ids = CoolIdUser.insert_all(cool_id_users).rows.flatten
+    cool_id_user_ids = CoolIdUser.insert_all!(cool_id_users).rows.flatten
     puts "  Inserted 1000 CoolIdUsers"
 
     cool_id_profiles = cool_id_user_ids.map { |id| {cool_id_user_id: id, bio: Faker::Lorem.paragraph} }
-    CoolIdProfile.insert_all(cool_id_profiles)
+    CoolIdProfile.insert_all!(cool_id_profiles)
     puts "  Inserted 1000 CoolIdProfiles"
 
     big_int_users = 1000.times.map { {name: Faker::Name.name, public_id: BigIntUser.generate_cool_id} }
-    big_int_user_ids = BigIntUser.insert_all(big_int_users).rows.flatten
+    big_int_user_ids = BigIntUser.insert_all!(big_int_users).rows.flatten
     puts "  Inserted 1000 BigIntUsers"
 
     big_int_profiles = big_int_user_ids.map { |id| {big_int_user_id: id, bio: Faker::Lorem.paragraph} }
-    BigIntProfile.insert_all(big_int_profiles)
+    BigIntProfile.insert_all!(big_int_profiles)
     puts "  Inserted 1000 BigIntProfiles"
 
     uuid_users = 1000.times.map { {name: Faker::Name.name} }
-    uuid_user_ids = UuidUser.insert_all(uuid_users).rows.flatten
+    uuid_user_ids = UuidUser.insert_all!(uuid_users).rows.flatten
     puts "  Inserted 1000 UuidUsers"
 
     uuid_profiles = uuid_user_ids.map { |id| {uuid_user_id: id, bio: Faker::Lorem.paragraph} }
-    UuidProfile.insert_all(uuid_profiles)
+    UuidProfile.insert_all!(uuid_profiles)
     puts "  Inserted 1000 UuidProfiles"
 
     puts "Batch #{batch + 1} complete"
