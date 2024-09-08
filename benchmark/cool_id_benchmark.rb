@@ -58,18 +58,27 @@ end
 
 # Generate sample data
 def generate_sample_data(count)
-  (count / 1000).times do
+  total_batches = count / 1000
+  (count / 1000).times do |batch|
+    puts "Inserting batch #{batch + 1} of #{total_batches}..."
+
     cool_id_users = 1000.times.map { {id: CoolIdUser.generate_cool_id, name: Faker::Name.name} }
     cool_id_user_ids = CoolIdUser.insert_all(cool_id_users).rows.flatten
+    puts "  Inserted 1000 CoolIdUsers"
 
     cool_id_profiles = cool_id_user_ids.map { |id| {cool_id_user_id: id, bio: Faker::Lorem.paragraph} }
     CoolIdProfile.insert_all(cool_id_profiles)
+    puts "  Inserted 1000 CoolIdProfiles"
 
     big_int_users = 1000.times.map { {name: Faker::Name.name, public_id: BigIntUser.generate_cool_id} }
     big_int_user_ids = BigIntUser.insert_all(big_int_users).rows.flatten
+    puts "  Inserted 1000 BigIntUsers"
 
     big_int_profiles = big_int_user_ids.map { |id| {big_int_user_id: id, bio: Faker::Lorem.paragraph} }
     BigIntProfile.insert_all(big_int_profiles)
+    puts "  Inserted 1000 BigIntProfiles"
+
+    puts "Batch #{batch + 1} complete"
   end
 end
 
