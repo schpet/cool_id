@@ -81,26 +81,29 @@ BATCH_SIZE = 1000
 # Generate sample data
 def generate_sample_data(count)
   total_batches = count / BATCH_SIZE
-  (count / BATCH_SIZE).times do |batch|
-    puts "Inserting batch #{batch + 1} of #{total_batches}..."
+  ActiveRecord::Base.transaction do
+    (count / BATCH_SIZE).times do |batch|
+      puts "Preparing batch #{batch + 1} of #{total_batches}..."
 
-    cool_id_users = BATCH_SIZE.times.map { {id: CoolIdUser.generate_cool_id, name: Faker::Name.name} }
-    cool_id_user_ids = CoolIdUser.insert_all!(cool_id_users).rows.flatten
+      cool_id_users = BATCH_SIZE.times.map { {id: CoolIdUser.generate_cool_id, name: Faker::Name.name} }
+      big_int_users = BATCH_SIZE.times.map { {name: Faker::Name.name, public_id: BigIntUser.generate_cool_id} }
+      uuid_users = BATCH_SIZE.times.map { {name: Faker::Name.name} }
 
-    cool_id_profiles = cool_id_user_ids.map { |id| {cool_id_user_id: id, bio: Faker::Lorem.paragraph} }
-    CoolIdProfile.insert_all!(cool_id_profiles)
+      puts "Inserting users..."
+      cool_id_user_ids = CoolIdUser.insert_all!(cool_id_users).rows.flatten
+      big_int_user_ids = BigIntUser.insert_all!(big_int_users).rows.flatten
+      uuid_user_ids = UuidUser.insert_all!(uuid_users).rows.flatten
 
-    big_int_users = BATCH_SIZE.times.map { {name: Faker::Name.name, public_id: BigIntUser.generate_cool_id} }
-    big_int_user_ids = BigIntUser.insert_all!(big_int_users).rows.flatten
+      puts "Preparing profiles..."
+      cool_id_profiles = cool_id_user_ids.map { |id| {cool_id_user_id: id, bio: Faker::Lorem.paragraph} }
+      big_int_profiles = big_int_user_ids.map { |id| {big_int_user_id: id, bio: Faker::Lorem.paragraph} }
+      uuid_profiles = uuid_user_ids.map { |id| {uuid_user_id: id, bio: Faker::Lorem.paragraph} }
 
-    big_int_profiles = big_int_user_ids.map { |id| {big_int_user_id: id, bio: Faker::Lorem.paragraph} }
-    BigIntProfile.insert_all!(big_int_profiles)
-
-    uuid_users = BATCH_SIZE.times.map { {name: Faker::Name.name} }
-    uuid_user_ids = UuidUser.insert_all!(uuid_users).rows.flatten
-
-    uuid_profiles = uuid_user_ids.map { |id| {uuid_user_id: id, bio: Faker::Lorem.paragraph} }
-    UuidProfile.insert_all!(uuid_profiles)
+      puts "Inserting profiles..."
+      CoolIdProfile.insert_all!(cool_id_profiles)
+      BigIntProfile.insert_all!(big_int_profiles)
+      UuidProfile.insert_all!(uuid_profiles)
+    end
   end
 end
 
