@@ -34,6 +34,15 @@ class BigIntProfile < ActiveRecord::Base
   belongs_to :big_int_user
 end
 
+# Models for UUID primary key
+class UuidUser < ActiveRecord::Base
+  has_one :uuid_profile
+end
+
+class UuidProfile < ActiveRecord::Base
+  belongs_to :uuid_user
+end
+
 # Set up database schema
 ActiveRecord::Schema.define do
   create_table :cool_id_users, id: :string, force: true do |t|
@@ -52,6 +61,15 @@ ActiveRecord::Schema.define do
 
   create_table :big_int_profiles, force: true do |t|
     t.bigint :big_int_user_id
+    t.string :bio
+  end
+
+  create_table :uuid_users, id: :uuid, default: -> { "gen_random_uuid()" }, force: true do |t|
+    t.string :name
+  end
+
+  create_table :uuid_profiles, force: true do |t|
+    t.uuid :uuid_user_id
     t.string :bio
   end
 end
@@ -78,6 +96,14 @@ def generate_sample_data(count)
     BigIntProfile.insert_all(big_int_profiles)
     puts "  Inserted 1000 BigIntProfiles"
 
+    uuid_users = 1000.times.map { {name: Faker::Name.name} }
+    uuid_user_ids = UuidUser.insert_all(uuid_users).rows.flatten
+    puts "  Inserted 1000 UuidUsers"
+
+    uuid_profiles = uuid_user_ids.map { |id| {uuid_user_id: id, bio: Faker::Lorem.paragraph} }
+    UuidProfile.insert_all(uuid_profiles)
+    puts "  Inserted 1000 UuidProfiles"
+
     puts "Batch #{batch + 1} complete"
   end
 end
@@ -94,6 +120,12 @@ def run_benchmark(iterations)
     x.report("BigInt Query:") do
       iterations.times do
         BigIntUser.joins(:big_int_profile).where(id: BigIntUser.pluck(:id).sample).first
+      end
+    end
+
+    x.report("UUID Query:") do
+      iterations.times do
+        UuidUser.joins(:uuid_profile).where(id: UuidUser.pluck(:id).sample).first
       end
     end
   end
