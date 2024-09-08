@@ -42,7 +42,7 @@ jobs:
         PGPASSWORD: postgres
     - name: Run benchmark
       run: |
-        bundle exec ruby benchmark/cool_id_benchmark.rb
+        bundle exec ruby benchmark/cool_id_benchmark.rb 1000000
       env:
         PGHOST: localhost
         PGUSER: postgres

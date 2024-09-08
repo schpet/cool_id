@@ -153,21 +153,36 @@ puts "Setting up schema..."
 ActiveRecord::Schema.define do
   create_table :cool_id_users, id: :string, force: true do |t|
     t.string :name
+    t.index :id, unique: true
   end
 
   create_table :cool_id_profiles, force: true do |t|
     t.string :cool_id_user_id
     t.string :bio
+    t.index :cool_id_user_id
   end
 
   create_table :big_int_users, force: true do |t|
     t.string :public_id
     t.string :name
+    t.index :public_id, unique: true
   end
 
   create_table :big_int_profiles, force: true do |t|
     t.bigint :big_int_user_id
     t.string :bio
+    t.index :big_int_user_id
+  end
+
+  create_table :uuid_users, id: :uuid, default: -> { "gen_random_uuid()" }, force: true do |t|
+    t.string :name
+    t.index :id, unique: true
+  end
+
+  create_table :uuid_profiles, force: true do |t|
+    t.uuid :uuid_user_id
+    t.string :bio
+    t.index :uuid_user_id
   end
 end
 
@@ -177,11 +192,8 @@ generate_sample_data(sample_size)
 puts "Running VACUUM..."
 ActiveRecord::Base.connection.execute("VACUUM ANALYZE")
 
-puts "Running first round of benchmarks..."
-run_benchmark(1000)
-
-puts "\nRunning second round of benchmarks..."
-run_benchmark(1000)
+puts "Running benchmarks..."
+run_benchmark(10_000)
 
 # Clean up
 clean_up_data
