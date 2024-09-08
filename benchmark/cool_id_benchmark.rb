@@ -167,6 +167,9 @@ end
 puts "Generating sample data..."
 generate_sample_data(10_000)
 
+puts "Running VACUUM..."
+ActiveRecord::Base.connection.execute("VACUUM ANALYZE")
+
 puts "Running benchmark..."
 run_benchmark(1000)
 
