@@ -81,7 +81,7 @@ module CoolId
       loop do
         nano_id = Nanoid.generate(size: length, alphabet: alphabet)
         full_id = "#{config.prefix}#{separator}#{nano_id}"
-        
+
         if skip_existence_check || !config.model_class.exists?(id: full_id)
           return full_id
         end
