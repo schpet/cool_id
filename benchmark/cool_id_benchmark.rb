@@ -84,7 +84,39 @@ def run_benchmark(iterations)
   end
 end
 
+# Clean up existing data
+def clean_up_data
+  ActiveRecord::Base.connection.drop_table :cool_id_users, if_exists: true
+  ActiveRecord::Base.connection.drop_table :cool_id_profiles, if_exists: true
+  ActiveRecord::Base.connection.drop_table :big_int_users, if_exists: true
+  ActiveRecord::Base.connection.drop_table :big_int_profiles, if_exists: true
+end
+
 # Main execution
+clean_up_data
+
+puts "Setting up schema..."
+ActiveRecord::Schema.define do
+  create_table :cool_id_users, id: :string, force: true do |t|
+    t.string :name
+  end
+
+  create_table :cool_id_profiles, force: true do |t|
+    t.string :cool_id_user_id
+    t.string :bio
+  end
+
+  create_table :big_int_users, force: true do |t|
+    t.string :public_id
+    t.string :name
+  end
+
+  create_table :big_int_profiles, force: true do |t|
+    t.bigint :big_int_user_id
+    t.string :bio
+  end
+end
+
 puts "Generating sample data..."
 generate_sample_data(10_000)
 
@@ -92,7 +124,4 @@ puts "Running benchmark..."
 run_benchmark(1000)
 
 # Clean up
-ActiveRecord::Base.connection.drop_table :cool_id_users
-ActiveRecord::Base.connection.drop_table :cool_id_profiles
-ActiveRecord::Base.connection.drop_table :big_int_users
-ActiveRecord::Base.connection.drop_table :big_int_profiles
+clean_up_data
