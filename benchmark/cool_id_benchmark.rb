@@ -86,7 +86,7 @@ end
 
 # Main execution
 puts "Generating sample data..."
-generate_sample_data(1_000_000)
+generate_sample_data(10_000)
 
 puts "Running benchmark..."
 run_benchmark(1000)
