@@ -116,21 +116,18 @@ end
 # Benchmark queries
 def run_benchmark(iterations, sample_ids)
   Benchmark.bm(20) do |x|
-    x.report("BigInt Query:") do
-      iterations.times do |i|
-        BigIntUser.joins(:big_int_profile).where(id: sample_ids[:big_int][i % sample_ids[:big_int].size]).first
-      end
-    end
-
-    x.report("UUID Query:") do
-      iterations.times do |i|
-        UuidUser.joins(:uuid_profile).where(id: sample_ids[:uuid][i % sample_ids[:uuid].size]).first
-      end
-    end
-
-    x.report("CoolId Query:") do
-      iterations.times do |i|
-        CoolIdUser.joins(:cool_id_profile).where(id: sample_ids[:cool_id][i % sample_ids[:cool_id].size]).first
+    [:big_int, :uuid, :cool_id].each do |id_type|
+      x.report("#{id_type.to_s.capitalize} Query:") do
+        iterations.times do |i|
+          case id_type
+          when :big_int
+            BigIntUser.joins(:big_int_profile).where(id: sample_ids[id_type][i % sample_ids[id_type].size]).first
+          when :uuid
+            UuidUser.joins(:uuid_profile).where(id: sample_ids[id_type][i % sample_ids[id_type].size]).first
+          when :cool_id
+            CoolIdUser.joins(:cool_id_profile).where(id: sample_ids[id_type][i % sample_ids[id_type].size]).first
+          end
+        end
       end
     end
   end
@@ -144,8 +141,12 @@ def clean_up_data
   ActiveRecord::Base.connection.drop_table :big_int_profiles, if_exists: true
 end
 
-# Parse command-line argument for sample data size
+# Parse command-line arguments for sample data size and iterations
 sample_size = ARGV[0] ? ARGV[0].to_i : 10_000
+iterations = ARGV[1] ? ARGV[1].to_i : 10_000
+
+# Ensure iterations is not larger than sample size
+iterations = [iterations, sample_size].min
 
 # Main execution
 clean_up_data
@@ -197,7 +198,7 @@ puts "Preparing sample IDs for benchmarks..."
 sample_ids = prepare_sample_ids(10_000)
 
 puts "Running benchmarks..."
-run_benchmark(10_000, sample_ids)
+run_benchmark(iterations, sample_ids)
 
 # Clean up
 clean_up_data
