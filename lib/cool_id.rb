@@ -69,9 +69,10 @@ module CoolId
 
     # Generates a unique ID based on the given configuration.
     # @param config [Config] The configuration for ID generation.
+    # @param skip_existence_check [Boolean] Whether to skip the existence check (default: false).
     # @return [String] A unique ID.
     # @raise [MaxRetriesExceededError] If unable to generate a unique ID within the maximum number of retries.
-    def generate_id(config)
+    def generate_id(config, skip_existence_check: false)
       alphabet = config.alphabet || @alphabet
       length = config.length || @length
       max_retries = config.max_retries || @max_retries
@@ -80,7 +81,8 @@ module CoolId
       loop do
         nano_id = Nanoid.generate(size: length, alphabet: alphabet)
         full_id = "#{config.prefix}#{separator}#{nano_id}"
-        if !config.model_class.exists?(id: full_id)
+        
+        if skip_existence_check || !config.model_class.exists?(id: full_id)
           return full_id
         end
 
@@ -226,9 +228,10 @@ module CoolId
       end
 
       # Generates a new CoolId for this model.
+      # @param skip_existence_check [Boolean] Whether to skip the existence check (default: false).
       # @return [String] A new CoolId.
-      def generate_cool_id
-        CoolId.generate_id(@cool_id_config)
+      def generate_cool_id(skip_existence_check: false)
+        CoolId.generate_id(@cool_id_config, skip_existence_check: skip_existence_check)
       end
 
       # Enforces CoolId setup for all descendants of this model.
