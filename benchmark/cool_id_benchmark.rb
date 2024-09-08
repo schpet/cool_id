@@ -85,8 +85,8 @@ def generate_sample_data(count)
     (count / BATCH_SIZE).times do |batch|
       puts "Preparing batch #{batch + 1} of #{total_batches}..."
 
-      cool_id_users = BATCH_SIZE.times.map { {id: CoolIdUser.generate_cool_id, name: Faker::Name.name} }
-      big_int_users = BATCH_SIZE.times.map { {name: Faker::Name.name, public_id: BigIntUser.generate_cool_id} }
+      cool_id_users = BATCH_SIZE.times.map { {id: CoolIdUser.generate_cool_id(skip_existence_check: true), name: Faker::Name.name} }
+      big_int_users = BATCH_SIZE.times.map { {name: Faker::Name.name, public_id: BigIntUser.generate_cool_id(skip_existence_check: true)} }
       uuid_users = BATCH_SIZE.times.map { {name: Faker::Name.name} }
 
       puts "Inserting users..."
