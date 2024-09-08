@@ -89,17 +89,14 @@ def generate_sample_data(count)
       big_int_users = BATCH_SIZE.times.map { {name: Faker::Name.name, public_id: BigIntUser.generate_cool_id(skip_existence_check: true)} }
       uuid_users = BATCH_SIZE.times.map { {name: Faker::Name.name} }
 
-      puts "Inserting users..."
       cool_id_user_ids = CoolIdUser.insert_all!(cool_id_users).rows.flatten
       big_int_user_ids = BigIntUser.insert_all!(big_int_users).rows.flatten
       uuid_user_ids = UuidUser.insert_all!(uuid_users).rows.flatten
 
-      puts "Preparing profiles..."
       cool_id_profiles = cool_id_user_ids.map { |id| {cool_id_user_id: id, bio: Faker::Lorem.paragraph} }
       big_int_profiles = big_int_user_ids.map { |id| {big_int_user_id: id, bio: Faker::Lorem.paragraph} }
       uuid_profiles = uuid_user_ids.map { |id| {uuid_user_id: id, bio: Faker::Lorem.paragraph} }
 
-      puts "Inserting profiles..."
       CoolIdProfile.insert_all!(cool_id_profiles)
       BigIntProfile.insert_all!(big_int_profiles)
       UuidProfile.insert_all!(uuid_profiles)
