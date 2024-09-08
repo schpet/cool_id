@@ -8,7 +8,9 @@ require "faker"
 # Configure ActiveRecord to use PostgreSQL
 ActiveRecord::Base.establish_connection(
   adapter: "postgresql",
-  host: "localhost",
+  host: ENV["PGHOST"] || "localhost",
+  username: ENV["PGUSER"] || "postgres",
+  password: ENV["PGPASSWORD"] || "postgres",
   database: "cool_id_benchmark"
 )
 
