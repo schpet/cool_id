@@ -170,7 +170,10 @@ generate_sample_data(10_000)
 puts "Running VACUUM..."
 ActiveRecord::Base.connection.execute("VACUUM ANALYZE")
 
-puts "Running benchmark..."
+puts "Running first round of benchmarks..."
+run_benchmark(1000)
+
+puts "\nRunning second round of benchmarks..."
 run_benchmark(1000)
 
 # Clean up
