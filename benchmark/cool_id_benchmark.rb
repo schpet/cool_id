@@ -143,6 +143,8 @@ def clean_up_data
   ActiveRecord::Base.connection.drop_table :cool_id_profiles, if_exists: true
   ActiveRecord::Base.connection.drop_table :big_int_users, if_exists: true
   ActiveRecord::Base.connection.drop_table :big_int_profiles, if_exists: true
+  ActiveRecord::Base.connection.drop_table :uuid_users, if_exists: true
+  ActiveRecord::Base.connection.drop_table :uuid_profiles, if_exists: true
 end
 
 # Parse command-line arguments for sample data size and iterations
