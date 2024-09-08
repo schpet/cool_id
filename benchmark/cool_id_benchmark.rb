@@ -143,6 +143,9 @@ def clean_up_data
   ActiveRecord::Base.connection.drop_table :big_int_profiles, if_exists: true
 end
 
+# Parse command-line argument for sample data size
+sample_size = ARGV[0] ? ARGV[0].to_i : 10_000
+
 # Main execution
 clean_up_data
 
@@ -168,8 +171,8 @@ ActiveRecord::Schema.define do
   end
 end
 
-puts "Generating sample data..."
-generate_sample_data(10_000)
+puts "Generating sample data (#{sample_size} records)..."
+generate_sample_data(sample_size)
 
 puts "Running VACUUM..."
 ActiveRecord::Base.connection.execute("VACUUM ANALYZE")
