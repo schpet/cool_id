@@ -150,7 +150,7 @@ RSpec.describe CoolId do
         cool_id prefix: "lim", max_retries: 5
       end
 
-      allow(Nanoid).to receive(:generate).and_return("existing_id")
+      allow(SecureRandom).to receive(:alphanumeric).and_return("existing_id")
       allow(LimitedRetryModel).to receive(:exists?).and_return(true)
 
       expect {

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "cool_id/version"
-require "nanoid"
+require "securerandom"
 require "active_support/concern"
 
 # The CoolId module provides functionality for generating and managing unique identifiers.
@@ -78,7 +78,7 @@ module CoolId
 
       retries = 0
       loop do
-        nano_id = Nanoid.generate(size: length, alphabet: alphabet)
+        nano_id = SecureRandom.alphanumeric(length, chars: alphabet.chars)
         full_id = "#{config.prefix}#{separator}#{nano_id}"
         if !config.model_class.exists?(id: full_id)
           return full_id
