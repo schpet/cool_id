@@ -4,7 +4,6 @@ PATH
     cool_id (0.1.9)
       activerecord (>= 6.0)
       activesupport (>= 6.0)
-      nanoid (~> 2.0)
 
 GEM
   remote: https://rubygems.org/
@@ -41,7 +40,6 @@ GEM
     logger (1.6.0)
     mini_portile2 (2.8.7)
     minitest (5.25.0)
-    nanoid (2.0.0)
     parallel (1.26.2)
     parser (3.3.4.2)
       ast (~> 2.4.1)

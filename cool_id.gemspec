@@ -22,7 +22,6 @@ Gem::Specification.new do |spec|
   spec.files = Dir.glob(%w[lib/**/*.rb *.md LICENSE .yardopts])
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "nanoid", "~> 2.0"
   spec.add_dependency "activerecord", ">= 6.0"
   spec.add_dependency "activesupport", ">= 6.0"
 
