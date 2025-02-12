@@ -2,7 +2,7 @@
 
 rails apps are given the option of integer ids, uuids or global ids. these are all annoying in their own ways:
 
-- integer ids are guessable, expose how many records you have and are easy to get crossed between tables _“oh i meant profile 123 not user 123...”_.
+- integer ids are guessable, expose how many records you have and are easy to get crossed between tables _“oh i meant profile 123 not user 123...”_
 - uuids mostly solve that but are long and ugly in urls which is unforgivible
 - global ids are even longer and uglier, they are often base64 encoded so it's annoying to drop into your database to lookup records
 
