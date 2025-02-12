@@ -38,7 +38,7 @@ jobs:
     - name: Generate HTML documentation
       run: bundle exec yard doc --output-dir ./docs
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3
       with:
         path: ./docs
 
