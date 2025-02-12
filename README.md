@@ -1,6 +1,12 @@
 # cool id
 
-gem for rails apps to generate string ids with a prefix, followed by a [nanoid](https://zelark.github.io/nano-id-cc/). similar to the ids you see in stripe's api. also able to lookup any record by id, similar to rails' globalid. there's an [introductory blog post](https://schpet.com/note/cool-id) explaining why i made this.
+rails apps are given the option of integer ids, uuids or global ids. these are all annoying in their own ways:
+
+- integer ids are guessable, expose how many records you have and are easy to get crossed between tables _“oh i meant profile 123 not user 123...”_.
+- uuids mostly solve that but are long and ugly in urls which is unforgivible
+- global ids are even longer and uglier, they are often base64 encoded so it's annoying to drop into your database to lookup records
+
+enter cool id: use a random string id, with a little prefix like stripe. e.g. `usr_vktd1b5v84lr` for a user, or `prd_vktd1b5v84lr` for a product. cool_id makes this easy to apply to all of your models and doesn't bring in any extra dependencies. your urls will be beautiful.
 
 ## usage
 
@@ -85,7 +91,6 @@ CoolId.locate("prd_vktd1b5v84lr")  # => #<Product id: 1, public_id: "prd_vktd1b5
 ```
 
 this approach allows you to avoid exposing your primary keys, read David Bryant Copeland's [Create public-facing unique keys alongside your primary keys](https://naildrivin5.com/blog/2024/08/26/create-public-facing-unique-keys-alongside-your-primary-keys.html) to learn why you might want to do this. it also allows you to adopt cool_id more easily in a project that already has some data.
-
 
 ## installation
 
