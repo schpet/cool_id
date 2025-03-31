@@ -57,7 +57,7 @@ jobs:
         uses: actions/deploy-pages@v2
 
   rubyfmt:
-    runs-on: macos-latest # rubyfmt is installed via brew
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: Install rubyfmt
