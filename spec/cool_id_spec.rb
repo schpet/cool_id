@@ -10,7 +10,7 @@ RSpec.describe CoolId do
   end
 
   it "has a version number" do
-    expect(CoolId::VERSION).not_to be nil
+    expect(CoolId::VERSION).not_to(be(nil))
   end
 
   describe ".generate_id" do
@@ -25,52 +25,57 @@ RSpec.describe CoolId do
     it "generates an ID with default parameters" do
       config = CoolId::Config.new(prefix: "X", model_class: mock_model)
       id = CoolId.generate_id(config)
-      expect(id).to match(/^X_[0-9a-z]{12}$/)
+      expect(id).to(match(/^X_[0-9a-z]{12}$/))
     end
 
     it "generates an ID with an empty prefix" do
       config = CoolId::Config.new(prefix: "X", model_class: mock_model)
       id = CoolId.generate_id(config)
-      expect(id).to match(/^X_[0-9a-z]{12}$/)
+      expect(id).to(match(/^X_[0-9a-z]{12}$/))
     end
 
     it "generates an ID with custom prefix and length" do
       config = CoolId::Config.new(prefix: "test", length: 10, model_class: mock_model)
       id = CoolId.generate_id(config)
-      expect(id).to match(/^test_[0-9a-z]{10}$/)
+      expect(id).to(match(/^test_[0-9a-z]{10}$/))
     end
 
     it "generates an ID without prefix when prefix is empty" do
       config = CoolId::Config.new(prefix: "X", length: 15, model_class: mock_model)
       id = CoolId.generate_id(config)
-      expect(id).to match(/^X_[0-9a-z]{15}$/)
+      expect(id).to(match(/^X_[0-9a-z]{15}$/))
     end
 
     it "generates an ID with custom alphabet" do
-      config = CoolId::Config.new(prefix: "X", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 10, model_class: mock_model)
+      config = CoolId::Config.new(
+        prefix: "X",
+        alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        length: 10,
+        model_class: mock_model
+      )
       id = CoolId.generate_id(config)
-      expect(id).to match(/^X_[A-Z]{10}$/)
+      expect(id).to(match(/^X_[A-Z]{10}$/))
     end
 
     it "uses the globally configured separator" do
       CoolId.configure { |config| config.separator = "-" }
       config = CoolId::Config.new(prefix: "test", length: 10, model_class: mock_model)
       id = CoolId.generate_id(config)
-      expect(id).to match(/^test-[0-9a-z]{10}$/)
+      expect(id).to(match(/^test-[0-9a-z]{10}$/))
     end
 
     it "uses the globally configured length" do
       CoolId.configure { |config| config.length = 8 }
       config = CoolId::Config.new(prefix: "test", model_class: mock_model)
       id = CoolId.generate_id(config)
-      expect(id).to match(/^test_[0-9a-z]{8}$/)
+      expect(id).to(match(/^test_[0-9a-z]{8}$/))
     end
 
     it "uses the config length over the global length" do
       CoolId.configure { |config| config.length = 8 }
       config = CoolId::Config.new(prefix: "test", length: 6, model_class: mock_model)
       id = CoolId.generate_id(config)
-      expect(id).to match(/^test_[0-9a-z]{6}$/)
+      expect(id).to(match(/^test_[0-9a-z]{6}$/))
     end
 
     it "resets configuration to default values" do
@@ -83,10 +88,10 @@ RSpec.describe CoolId do
 
       CoolId.reset_configuration
 
-      expect(CoolId.separator).to eq(CoolId::DEFAULT_SEPARATOR)
-      expect(CoolId.alphabet).to eq(CoolId::DEFAULT_ALPHABET)
-      expect(CoolId.length).to eq(CoolId::DEFAULT_LENGTH)
-      expect(CoolId.max_retries).to eq(CoolId::DEFAULT_MAX_RETRIES)
+      expect(CoolId.separator).to(eq(CoolId::DEFAULT_SEPARATOR))
+      expect(CoolId.alphabet).to(eq(CoolId::DEFAULT_ALPHABET))
+      expect(CoolId.length).to(eq(CoolId::DEFAULT_LENGTH))
+      expect(CoolId.max_retries).to(eq(CoolId::DEFAULT_MAX_RETRIES))
     end
   end
 
@@ -107,19 +112,19 @@ RSpec.describe CoolId do
 
     before(:each) do
       ActiveRecord::Schema.define do
-        create_table :users, id: :string do |t|
-          t.string :name
+        create_table(:users, id: :string) do |t|
+          t.string(:name)
         end
 
-        create_table :customers, id: :string do |t|
-          t.string :name
+        create_table(:customers, id: :string) do |t|
+          t.string(:name)
         end
       end
     end
 
     after(:each) do
-      ActiveRecord::Base.connection.drop_table :users
-      ActiveRecord::Base.connection.drop_table :customers
+      ActiveRecord::Base.connection.drop_table(:users)
+      ActiveRecord::Base.connection.drop_table(:customers)
     end
 
     after(:all) do
@@ -128,18 +133,18 @@ RSpec.describe CoolId do
 
     it "generates a cool_id for a new record" do
       user = User.create(name: "John Doe")
-      expect(user.id).to match(/^usr_[0-9a-z]{12}$/)
+      expect(user.id).to(match(/^usr_[0-9a-z]{12}$/))
     end
 
     it "does not overwrite an existing id" do
       user = User.create(id: "custom-id", name: "Jane Doe")
-      expect(user.id).to eq("custom-id")
+      expect(user.id).to(eq("custom-id"))
     end
 
     it "generates a cool_id with custom settings" do
       CoolId.separator = "-"
       customer = Customer.create(name: "Alice")
-      expect(customer.id).to match(/^cus-[A-Z]{8}$/)
+      expect(customer.id).to(match(/^cus-[A-Z]{8}$/))
       CoolId.reset_configuration
     end
 
@@ -150,37 +155,41 @@ RSpec.describe CoolId do
         cool_id prefix: "lim", max_retries: 5
       end
 
-      allow(SecureRandom).to receive(:alphanumeric).and_return("existing_id")
-      allow(LimitedRetryModel).to receive(:exists?).and_return(true)
+      allow(SecureRandom).to(receive(:alphanumeric).and_return("existing_id"))
+      allow(LimitedRetryModel).to(receive(:exists?).and_return(true))
 
       expect {
         LimitedRetryModel.create(name: "Test")
-      }.to raise_error(CoolId::MaxRetriesExceededError, "Failed to generate a unique ID after 5 attempts")
+      }
+        .to(raise_error(CoolId::MaxRetriesExceededError, "Failed to generate a unique ID after 5 attempts"))
     end
 
     it "raises an error when trying to set an empty prefix" do
       expect {
         Class.new(ActiveRecord::Base) do
-          include CoolId::Model
-          cool_id prefix: ""
+          include(CoolId::Model)
+          cool_id(prefix: "")
         end
-      }.to raise_error(ArgumentError, "Prefix cannot be empty")
+      }
+        .to(raise_error(ArgumentError, "Prefix cannot be empty"))
 
       expect {
         Class.new(ActiveRecord::Base) do
-          include CoolId::Model
-          cool_id prefix: nil
+          include(CoolId::Model)
+          cool_id(prefix: nil)
         end
-      }.to raise_error(ArgumentError, "Prefix cannot be nil")
+      }
+        .to(raise_error(ArgumentError, "Prefix cannot be nil"))
     end
 
     it "allows whitespace-only prefix" do
       expect {
         Class.new(ActiveRecord::Base) do
-          include CoolId::Model
-          cool_id prefix: "   "
+          include(CoolId::Model)
+          cool_id(prefix: "   ")
         end
-      }.not_to raise_error
+      }
+        .not_to(raise_error)
     end
 
     it "raises an error when the alphabet includes the separator" do
@@ -188,36 +197,37 @@ RSpec.describe CoolId do
       mock_model = Class.new
       expect {
         CoolId::Config.new(prefix: "test", alphabet: "ABC-DEF", model_class: mock_model)
-      }.to raise_error(ArgumentError, "Alphabet cannot include the separator '-'")
+      }
+        .to(raise_error(ArgumentError, "Alphabet cannot include the separator '-'"))
       CoolId.reset_configuration
     end
 
     it "can locate a record using CoolId.locate" do
       user = User.create(name: "John Doe")
       located_user = CoolId.locate(user.id)
-      expect(located_user).to eq(user)
+      expect(located_user).to(eq(user))
     end
 
     it "can locate a custom record using CoolId.locate" do
       customer = Customer.create(name: "Alice")
       located_customer = CoolId.locate(customer.id)
-      expect(located_customer).to eq(customer)
+      expect(located_customer).to(eq(customer))
     end
 
     it "returns nil when trying to locate a non-existent record" do
-      expect(CoolId.locate("usr_nonexistent")).to be_nil
+      expect(CoolId.locate("usr_nonexistent")).to(be_nil)
     end
 
     it "returns nil when trying to locate a record with an unknown prefix" do
-      expect(CoolId.locate("unknown_prefix_123")).to be_nil
+      expect(CoolId.locate("unknown_prefix_123")).to(be_nil)
     end
 
     it "works with different separators" do
       user = User.create(name: "John Doe")
       customer = Customer.create(name: "Jane Doe")
 
-      expect(CoolId.locate(user.id)).to eq(user)
-      expect(CoolId.locate(customer.id)).to eq(customer)
+      expect(CoolId.locate(user.id)).to(eq(user))
+      expect(CoolId.locate(customer.id)).to(eq(customer))
     end
 
     it "generates a cool_id for a custom id field" do
@@ -227,21 +237,21 @@ RSpec.describe CoolId do
       end
 
       ActiveRecord::Schema.define do
-        create_table :products do |t|
-          t.string :public_id
-          t.string :name
+        create_table(:products) do |t|
+          t.string(:public_id)
+          t.string(:name)
         end
       end
 
       product = Product.create!(name: "Cool Product")
-      expect(product.id).to be_a(Integer)
-      expect(product.public_id).to match(/^prd_[0-9a-z]{12}$/)
-      expect(product.id).not_to match(/^prd_[0-9a-z]{12}$/)
+      expect(product.id).to(be_a(Integer))
+      expect(product.public_id).to(match(/^prd_[0-9a-z]{12}$/))
+      expect(product.id).not_to(match(/^prd_[0-9a-z]{12}$/))
 
       located_product = CoolId.locate(product.public_id)
-      expect(located_product).to eq(product)
+      expect(located_product).to(eq(product))
 
-      ActiveRecord::Base.connection.drop_table :products
+      ActiveRecord::Base.connection.drop_table(:products)
     end
   end
 
@@ -252,39 +262,39 @@ RSpec.describe CoolId do
 
     before(:each) do
       ActiveRecord::Schema.define do
-        create_table :base_records, id: false do |t|
-          t.string :id, primary_key: true
-          t.string :name
+        create_table(:base_records, id: false) do |t|
+          t.string(:id, primary_key: true)
+          t.string(:name)
         end
 
-        create_table :unconfigured_models, id: false do |t|
-          t.string :id, primary_key: true
-          t.string :name
+        create_table(:unconfigured_models, id: false) do |t|
+          t.string(:id, primary_key: true)
+          t.string(:name)
         end
 
-        create_table :configured_models, id: false do |t|
-          t.string :id, primary_key: true
-          t.string :name
+        create_table(:configured_models, id: false) do |t|
+          t.string(:id, primary_key: true)
+          t.string(:name)
         end
 
-        create_table :skipped_models, id: false do |t|
-          t.string :id, primary_key: true
-          t.string :name
+        create_table(:skipped_models, id: false) do |t|
+          t.string(:id, primary_key: true)
+          t.string(:name)
         end
 
-        create_table :inherited_models, id: false do |t|
-          t.string :id, primary_key: true
-          t.string :name
+        create_table(:inherited_models, id: false) do |t|
+          t.string(:id, primary_key: true)
+          t.string(:name)
         end
       end
     end
 
     after(:each) do
-      ActiveRecord::Base.connection.drop_table :base_records
-      ActiveRecord::Base.connection.drop_table :unconfigured_models
-      ActiveRecord::Base.connection.drop_table :configured_models
-      ActiveRecord::Base.connection.drop_table :skipped_models
-      ActiveRecord::Base.connection.drop_table :inherited_models
+      ActiveRecord::Base.connection.drop_table(:base_records)
+      ActiveRecord::Base.connection.drop_table(:unconfigured_models)
+      ActiveRecord::Base.connection.drop_table(:configured_models)
+      ActiveRecord::Base.connection.drop_table(:skipped_models)
+      ActiveRecord::Base.connection.drop_table(:inherited_models)
     end
 
     after(:all) do
@@ -301,16 +311,24 @@ RSpec.describe CoolId do
       expect {
         class UnconfiguredModel < BaseRecord
         end
+
         UnconfiguredModel.new
-      }.to raise_error(CoolId::NotConfiguredError, <<~ERROR.strip)
-        CoolId not configured for UnconfiguredModel. Use 'cool_id' to configure or 'skip_enforce_cool_id' to opt out.
+      }
+        .to(
+          raise_error(
+            CoolId::NotConfiguredError,
+            <<~ERROR
+              CoolId not configured for UnconfiguredModel. Use 'cool_id' to configure or 'skip_enforce_cool_id' to opt out.
 
-        e.g.
+              e.g.
 
-        class UnconfiguredModel < ApplicationRecord
-          cool_id prefix: "unc"
-        end
-      ERROR
+              class UnconfiguredModel < ApplicationRecord
+                cool_id prefix: "unc"
+              end
+            ERROR
+              .strip
+          )
+        )
     end
 
     it "does not raise an error when cool_id is configured in a subclass" do
@@ -324,8 +342,10 @@ RSpec.describe CoolId do
         class ConfiguredModel < BaseRecord
           cool_id prefix: "cfg"
         end
+
         ConfiguredModel.new
-      }.not_to raise_error
+      }
+        .not_to(raise_error)
     end
 
     it "does not raise an error when cool_id setup is skipped" do
@@ -339,8 +359,10 @@ RSpec.describe CoolId do
         class SkippedModel < BaseRecord
           skip_enforce_cool_id
         end
+
         SkippedModel.new
-      }.not_to raise_error
+      }
+        .not_to(raise_error)
     end
   end
 end

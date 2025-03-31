@@ -7,10 +7,12 @@ require "active_support/concern"
 # The CoolId module provides functionality for generating and managing unique identifiers.
 module CoolId
   # Error raised when CoolId is not configured for a model.
-  class NotConfiguredError < StandardError; end
+  class NotConfiguredError < StandardError
+  end
 
   # Error raised when the maximum number of retries is exceeded while generating a unique ID.
-  class MaxRetriesExceededError < StandardError; end
+  class MaxRetriesExceededError < StandardError
+  end
 
   # Default separator used in generated IDs.
   DEFAULT_SEPARATOR = "_"
@@ -33,16 +35,16 @@ module CoolId
   Id = Struct.new(:key, :prefix, :id, :model_class, :id_field)
 
   class << self
-    # @!attribute [rw] separator
-    #   @return [String] The separator used in generated IDs.
-    # @!attribute [rw] alphabet
-    #   @return [String] The alphabet used for generating IDs.
-    # @!attribute [rw] length
-    #   @return [Integer] The length of the generated ID (excluding prefix and separator).
-    # @!attribute [rw] max_retries
-    #   @return [Integer] The maximum number of retries when generating a unique ID.
-    # @!attribute [rw] id_field
-    #   @return [Symbol, nil] The default field to use for storing the ID in models.
+  # @!attribute [rw] separator
+  #   @return [String] The separator used in generated IDs.
+  # @!attribute [rw] alphabet
+  #   @return [String] The alphabet used for generating IDs.
+  # @!attribute [rw] length
+  #   @return [Integer] The length of the generated ID (excluding prefix and separator).
+  # @!attribute [rw] max_retries
+  #   @return [Integer] The maximum number of retries when generating a unique ID.
+  # @!attribute [rw] id_field
+  #   @return [Symbol, nil] The default field to use for storing the ID in models.
     attr_accessor :separator, :alphabet, :length, :max_retries, :id_field
 
     # Configures the CoolId module.
@@ -195,7 +197,10 @@ module CoolId
     # @raise [ArgumentError] If the alphabet includes the separator.
     def validate_alphabet(value)
       return nil if value.nil?
-      raise ArgumentError, "Alphabet cannot include the separator '#{CoolId.separator}'" if value.include?(CoolId.separator)
+      if value.include?(CoolId.separator)
+        raise ArgumentError, "Alphabet cannot include the separator '#{CoolId.separator}'"
+      end
+
       value
     end
   end
@@ -273,7 +278,10 @@ module CoolId
       def ensure_cool_id_configured
         if self.class.cool_id_setup_required && self.class.cool_id_config.nil?
           suggested_prefix = self.class.name.downcase[0..2]
-          raise NotConfiguredError, "CoolId not configured for #{self.class}. Use 'cool_id' to configure or 'skip_enforce_cool_id' to opt out.\n\ne.g.\n\nclass #{self.class} < ApplicationRecord\n  cool_id prefix: \"#{suggested_prefix}\"\nend"
+          raise(
+            NotConfiguredError,
+            "CoolId not configured for #{self.class}. Use 'cool_id' to configure or 'skip_enforce_cool_id' to opt out.\n\ne.g.\n\nclass #{self.class} < ApplicationRecord\n  cool_id prefix: \"#{suggested_prefix}\"\nend"
+          )
         end
       end
     end
