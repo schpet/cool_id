@@ -56,7 +56,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v2
 
-  fmt:
+  rubyfmt:
     runs-on: macos-latest # rubyfmt is installed via brew
     steps:
     - uses: actions/checkout@v4
