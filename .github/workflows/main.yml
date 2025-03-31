@@ -57,7 +57,10 @@ jobs:
         uses: actions/deploy-pages@v2
 
   fmt:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest # rubyfmt is installed via brew
     steps:
     - uses: actions/checkout@v4
-    # update this to `brew install rubyfmt` and then run `rubyfmt --check .` ai!
+    - name: Install rubyfmt
+      run: brew install rubyfmt
+    - name: Check formatting
+      run: rubyfmt --check .
