@@ -133,7 +133,9 @@ module CoolId
     # @param id [String] The CoolId to parse.
     # @return [Id, nil] The parsed Id object, or nil if parsing fails.
     def parse(id)
-      prefix, key = id.split(CoolId.separator, 2)
+      components = id.split(CoolId.separator)
+      prefix = components[0..-2].join(CoolId.separator)
+      key = components[-1]
       model_class = @prefix_map[prefix]
       return nil unless model_class
       id_field = CoolId.resolve_cool_id_field(model_class)

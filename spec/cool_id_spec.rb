@@ -101,6 +101,11 @@ RSpec.describe CoolId do
       cool_id prefix: "cus", alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", length: 8, max_retries: 500
     end
 
+    class TroubleMaker < ActiveRecord::Base
+      include CoolId::Model
+      cool_id prefix: "trbl_mkr"
+    end
+
     before(:all) do
       ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
     end
@@ -114,12 +119,17 @@ RSpec.describe CoolId do
         create_table :customers, id: :string do |t|
           t.string :name
         end
+
+        create_table :trouble_makers, id: :string do |t|
+          t.string :name
+        end
       end
     end
 
     after(:each) do
       ActiveRecord::Base.connection.drop_table :users
       ActiveRecord::Base.connection.drop_table :customers
+      ActiveRecord::Base.connection.drop_table :trouble_makers
     end
 
     after(:all) do
@@ -218,6 +228,12 @@ RSpec.describe CoolId do
 
       expect(CoolId.locate(user.id)).to eq(user)
       expect(CoolId.locate(customer.id)).to eq(customer)
+    end
+
+    it "handles multiple separators" do
+      record = TroubleMaker.create(name: "John Doe")
+
+      expect(CoolId.locate(record.id)).to eq(record)
     end
 
     it "generates a cool_id for a custom id field" do
