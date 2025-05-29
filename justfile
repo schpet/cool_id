@@ -9,5 +9,9 @@ bump-version:
     gem build cool_id.gemspec
     bundle install
     git add lib/cool_id/version.rb Gemfile.lock CHANGELOG.md
-    # git commit -m "chore: Release cool_id version $VERSION"
-    # git tag "v$VERSION"
+    git commit -m "chore: Release cool_id version $VERSION"
+    git tag "v$VERSION"
+
+    echo "Tagged v$VERSION"
+    echo "run 'git push origin HEAD --tags'"
+    echo "and 'gem push cool_id-$VERSION.gem' to release it"
