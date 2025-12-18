@@ -1,5 +1,5 @@
 default:
-    echo 'Hello, world!'
+    just -l -u
 
 bump-version:
     #!/bin/bash
@@ -8,10 +8,12 @@ bump-version:
     sed -i '' "s/VERSION = \".*\"/VERSION = \"$VERSION\"/" lib/cool_id/version.rb
     gem build cool_id.gemspec
     bundle install
-    git add lib/cool_id/version.rb Gemfile.lock CHANGELOG.md
-    git commit -m "chore: Release cool_id version $VERSION"
-    git tag "v$VERSION"
 
-    echo "Tagged v$VERSION"
-    echo "run 'git push origin HEAD --tags'"
-    echo "and 'gem push cool_id-$VERSION.gem' to release it"
+    jj commit -m "chore: Release cool_id version $VERSION"
+    jj bookmark set main -r @-
+    jj tag set "v$VERSION" -r @-
+    jj git push --bookmark main
+
+    git push origin --tags
+
+    @echo "released v$VERSION, now run 'gem push cool_id-$VERSION.gem'"
