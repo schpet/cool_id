@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- raise an error if a prefix is registered more than once
+
 ## [0.2.3] - 2025-05-29
 
 ### Fixed

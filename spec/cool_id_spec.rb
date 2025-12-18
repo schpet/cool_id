@@ -202,6 +202,34 @@ RSpec.describe CoolId do
       CoolId.reset_configuration
     end
 
+    it "raises an error when two models use the same prefix" do
+      first_model = Class.new(ActiveRecord::Base) do
+        self.table_name = "users"
+        include CoolId::Model
+        cool_id prefix: "dup"
+      end
+
+      expect {
+        Class.new(ActiveRecord::Base) do
+          self.table_name = "customers"
+          include CoolId::Model
+          cool_id prefix: "dup"
+        end
+      }.to raise_error(CoolId::DuplicatePrefixError, "Prefix 'dup' is already registered to #{first_model.name}")
+    end
+
+    it "allows re-registering the same prefix for the same model class" do
+      model = Class.new(ActiveRecord::Base) do
+        self.table_name = "users"
+        include CoolId::Model
+        cool_id prefix: "reregister"
+      end
+
+      expect {
+        model.cool_id prefix: "reregister"
+      }.not_to raise_error
+    end
+
     it "can locate a record using CoolId.locate" do
       user = User.create(name: "John Doe")
       located_user = CoolId.locate(user.id)

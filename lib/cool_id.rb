@@ -12,6 +12,9 @@ module CoolId
   # Error raised when the maximum number of retries is exceeded while generating a unique ID.
   class MaxRetriesExceededError < StandardError; end
 
+  # Error raised when a prefix is already registered to another model.
+  class DuplicatePrefixError < StandardError; end
+
   # Default separator used in generated IDs.
   DEFAULT_SEPARATOR = "_"
 
@@ -114,7 +117,12 @@ module CoolId
     # @param prefix [String] The prefix to register.
     # @param model_class [Class] The ActiveRecord model class to associate with the prefix.
     # @return [void]
+    # @raise [DuplicatePrefixError] If the prefix is already registered to a different model.
     def register(prefix, model_class)
+      existing = @prefix_map[prefix]
+      if existing && existing != model_class
+        raise DuplicatePrefixError, "Prefix '#{prefix}' is already registered to #{existing.name}"
+      end
       @prefix_map[prefix] = model_class
     end
 
