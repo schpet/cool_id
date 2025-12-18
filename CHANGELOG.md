@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.4] - 2025-12-18
+
 ### Fixed
 
 - raise an error if a prefix is registered more than once
@@ -36,7 +38,8 @@
 
 - Initial release
 
-[Unreleased]: https://github.com/schpet/cool_id/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/schpet/cool_id/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/schpet/cool_id/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/schpet/cool_id/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/schpet/cool_id/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/schpet/cool_id/compare/v0.2.0...v0.2.1
