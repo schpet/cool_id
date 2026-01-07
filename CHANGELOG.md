@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- duplicate prefix error when Rails reloads model classes in development mode
+
 ## [0.2.4] - 2025-12-18
 
 ### Fixed

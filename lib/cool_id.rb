@@ -120,8 +120,15 @@ module CoolId
     # @raise [DuplicatePrefixError] If the prefix is already registered to a different model.
     def register(prefix, model_class)
       existing = @prefix_map[prefix]
-      if existing && existing != model_class
-        raise DuplicatePrefixError, "Prefix '#{prefix}' is already registered to #{existing.name}"
+      if existing
+        same_class = if existing.name && model_class.name
+          existing.name == model_class.name
+        else
+          existing == model_class
+        end
+        unless same_class
+          raise DuplicatePrefixError, "Prefix '#{prefix}' is already registered to #{existing.name}"
+        end
       end
       @prefix_map[prefix] = model_class
     end

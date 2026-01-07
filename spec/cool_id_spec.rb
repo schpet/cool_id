@@ -230,6 +230,36 @@ RSpec.describe CoolId do
       }.not_to raise_error
     end
 
+    it "allows re-registering the same prefix after class reload (Rails dev mode)" do
+      # Simulate Rails hot reloading: same class name, different class objects
+      # This happens when Rails reloads a model file in development mode
+
+      # First "load" of the class - must assign constant before calling cool_id
+      # so the class has a name when registering
+      first_class = Class.new(ActiveRecord::Base) do
+        self.table_name = "users"
+        include CoolId::Model
+      end
+      stub_const("ReloadableModel", first_class)
+      first_class.cool_id prefix: "reload"
+
+      # Simulate class reload by creating a new class object with the same name
+      second_class = Class.new(ActiveRecord::Base) do
+        self.table_name = "users"
+        include CoolId::Model
+      end
+      stub_const("ReloadableModel", second_class)
+      second_class.cool_id prefix: "reload"
+
+      # Verify these are different class objects with the same name
+      expect(first_class.object_id).not_to eq(second_class.object_id)
+      expect(first_class.name).to eq(second_class.name)
+      expect(first_class.name).to eq("ReloadableModel")
+
+      # The registry should now point to the reloaded class
+      expect(CoolId.registry.parse("reload_abc123").model_class).to eq(second_class)
+    end
+
     it "can locate a record using CoolId.locate" do
       user = User.create(name: "John Doe")
       located_user = CoolId.locate(user.id)

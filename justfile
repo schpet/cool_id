@@ -16,4 +16,4 @@ bump-version:
 
     git push origin --tags
 
-    @echo "released v$VERSION, now run 'gem push cool_id-$VERSION.gem'"
+    echo "released v$VERSION, now run 'gem push cool_id-$VERSION.gem'"
