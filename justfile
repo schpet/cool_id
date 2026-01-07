@@ -1,7 +1,8 @@
 default:
     just -l -u
 
-bump-version:
+# releases current version from changelog
+release:
     #!/bin/bash
     set -e
     VERSION=$(changelog version latest)
